@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>TRIB3 OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#ff2d55;--dark:#08080f;--surface:#0d0d18;--card:#111120;--border:#1c1c2e;
+  --muted:#44445a;--text:#e2e2f0;--sub:#7777a0;
+  --font-d:'Syne',sans-serif;--font-m:'DM Mono',monospace;
+}
+html,body{height:100%;background:var(--dark);color:var(--text);font-family:var(--font-m);overflow:hidden}
+/* ── SVG VISUAL SYSTEM ── */
+.vis{display:block;width:100%;height:100%}
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;background:rgba(8,8,15,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.brand{font-family:var(--font-d);font-size:20px;letter-spacing:-1px;color:#fff;cursor:pointer}
+.brand b{color:var(--red)}
+.share-btn{background:var(--red);border:none;border-radius:20px;padding:6px 14px;color:#fff;font-family:var(--font-m);font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--red),#7b61ff);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#fff;flex-shrink:0}
+#scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+#scroll::-webkit-scrollbar{display:none}
+/* ── BOTTOM NAV ── */
+.bnav{display:flex;background:var(--surface);border-top:1px solid var(--border);padding:10px 0 max(18px,env(safe-area-inset-bottom));flex-shrink:0;z-index:10}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:var(--font-m);padding:4px 0;transition:color .15s}
+.ni.on{color:var(--red)}
+.ni-ico{font-size:19px;line-height:1}
+.ni-lbl{font-size:7px;letter-spacing:2px;font-weight:700;text-transform:uppercase}
+.ni-bar{width:16px;height:2px;background:var(--red);border-radius:1px}
+/* ── SCREEN ── */
+.scr{padding-bottom:88px;animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+/* ── TYPE ── */
+.label{font-size:9px;color:var(--red);letter-spacing:3px;font-weight:700;text-transform:uppercase}
+.shead{font-size:9px;color:var(--muted);letter-spacing:3px;font-weight:700;text-transform:uppercase}
+.h1{font-family:var(--font-d);font-size:33px;letter-spacing:-2px;line-height:1;color:#fff}
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.tag{display:inline-block;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 9px;border-radius:4px;white-space:nowrap}
+/* ── BACK BTN ── */
+.back{position:absolute;top:14px;left:14px;z-index:5;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* ── BUTTONS ── */
+.rbtn{background:var(--red);color:#fff;border:none;border-radius:12px;width:100%;padding:13px;font-family:var(--font-m);font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;transition:opacity .15s}
+.rbtn:active{opacity:.8}
+.gbtn{background:transparent;border:1px solid var(--border);border-radius:12px;width:100%;padding:11px;font-family:var(--font-m);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--sub);cursor:pointer;text-transform:uppercase}
+.pbtn{border-radius:20px;padding:7px 15px;font-family:var(--font-m);font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border:1px solid;transition:all .15s}
+.pbtn:active{transform:scale(.96)}
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 16px;background:var(--dark)}
+.tab{flex:1;padding:11px 0;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;font-family:var(--font-m);text-transform:uppercase;margin-bottom:-1px;transition:color .15s,border-color .15s}
+/* ── H-SCROLL ── */
+.hs{display:flex;gap:10px;overflow-x:auto;padding:0 16px 4px;-webkit-overflow-scrolling:touch}
+.hs::-webkit-scrollbar{display:none}
+/* ── SHEETS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:100;display:flex;align-items:flex-end;backdrop-filter:blur(10px)}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:22px 20px max(32px,env(safe-area-inset-bottom));width:100%;animation:slideUp .25s cubic-bezier(.22,1,.36,1)}
+.shandle{width:36px;height:3px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.inp{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-family:var(--font-m);font-size:13px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--red)}
+/* ── PROFILE ── */
+.phero{background:linear-gradient(135deg,#1a0820 0%,#0a1525 100%);padding:28px 20px 22px}
+.pavlg{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--red),#7b61ff);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:28px;color:#fff;margin-bottom:12px;box-shadow:0 0 32px rgba(255,45,85,.35)}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:10px 20px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:1px;z-index:500;white-space:nowrap;box-shadow:0 8px 32px rgba(255,45,85,.45);pointer-events:none;display:none;animation:fadeIn .2s ease}
+/* ── SHARE SCREEN ── */
+#share-scr{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(14px)}
+.ssheet{background:var(--surface);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:28px 24px 48px;width:100%;max-width:480px;animation:slideUp .28s cubic-bezier(.22,1,.36,1)}
+.qr-box{background:#fff;border-radius:16px;padding:16px;width:196px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center}
+/* ── STAT BOXES ── */
+.sboxes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.sbox{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center}
+.sbox-n{font-family:var(--font-d);font-size:20px;color:#fff}
+.sbox-l{font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+/* ── CONFIRMED ── */
+.confirmed{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.3);border-radius:12px;padding:14px;color:#00c9a7;font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:16px}
+/* ── UPLOAD GRID ── */
+.ugrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.uthumb{border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:pointer;border:2px solid transparent;transition:border-color .15s}
+.uthumb.sel{border-color:var(--red)}
+/* ── MEMBER ROW ── */
+.mrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+/* ── MEDIA ── */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.mthumb{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer}
+.mpost{border-bottom:1px solid var(--border)}
+.mpost-img{height:260px;overflow:hidden}
+/* ── COMM PILL ── */
+.cpill{flex-shrink:0;width:136px;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--border);cursor:pointer}
+.cpill-img{height:72px;overflow:hidden;position:relative}
+/* ── ROW HELPERS ── */
+.rowhead{display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px}
+.seeall{font-size:9px;color:var(--red);letter-spacing:1px;background:none;border:none;cursor:pointer;font-family:var(--font-m)}
+.evrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition:opacity .15s}
+.evrow:active{opacity:.8}
+/* ── EVENT CARD IMG WRAP ── */
+.eimgw{position:relative;height:155px;overflow:hidden}
+.eov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.1) 55%)}
+</style>
+</head>
+<body>
+
+<!-- SHARE SCREEN -->
+<div id="share-scr">
+  <div class="ssheet">
+    <div class="shandle"></div>
+    <div style="font-family:var(--font-d);font-size:22px;color:#fff;margin-bottom:4px">TRIB3<b style="color:var(--red)">OS</b></div>
+    <div style="font-size:10px;color:var(--sub);letter-spacing:2px;margin-bottom:20px">SCAN OR SHARE LINK TO OPEN ON MOBILE</div>
+    <div class="qr-box" id="qr-box">
+      <svg width="168" height="168" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+        <rect width="168" height="168" fill="white"/>
+        <text x="84" y="76" text-anchor="middle" font-family="monospace" font-size="11" fill="#333">HOST THIS FILE</text>
+        <text x="84" y="94" text-anchor="middle" font-family="monospace" font-size="11" fill="#333">TO GENERATE</text>
+        <text x="84" y="112" text-anchor="middle" font-family="monospace" font-size="11" fill="#ff2d55">QR CODE</text>
+        <!-- QR corner marks -->
+        <rect x="10" y="10" width="30" height="30" fill="none" stroke="#333" stroke-width="4"/>
+        <rect x="15" y="15" width="20" height="20" fill="#333"/>
+        <rect x="128" y="10" width="30" height="30" fill="none" stroke="#333" stroke-width="4"/>
+        <rect x="133" y="15" width="20" height="20" fill="#333"/>
+        <rect x="10" y="128" width="30" height="30" fill="none" stroke="#333" stroke-width="4"/>
+        <rect x="15" y="133" width="20" height="20" fill="#333"/>
+      </svg>
+    </div>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:16px;line-height:1.6">
+      Host this file → paste URL below → live QR updates
+    </p>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="url-in" class="inp" placeholder="https://your-site.com/trib3-os.html" style="flex:1;font-size:11px">
+      <button onclick="copyUrl()" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:0 14px;font-family:var(--font-m);font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer">COPY</button>
+    </div>
+    <button onclick="dismissShare()" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:12px;padding:13px;font-family:var(--font-d);font-size:15px;font-weight:800;cursor:pointer;letter-spacing:1px">OPEN DEMO →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="brand" onclick="navTo('feed')">TRIB3<b>OS</b></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="share-btn" onclick="openShare()">⬆ SHARE</button>
+      <div class="av">K</div>
+    </div>
+  </div>
+  <div id="scroll"></div>
+  <nav class="bnav">
+    <button class="ni on" id="ni-feed" onclick="navTo('feed')"><span class="ni-ico">⌂</span><span class="ni-lbl">Feed</span><div class="ni-bar"></div></button>
+    <button class="ni" id="ni-events" onclick="navTo('events')"><span class="ni-ico">◈</span><span class="ni-lbl">Events</span></button>
+    <button class="ni" id="ni-communities" onclick="navTo('communities')"><span class="ni-ico">◉</span><span class="ni-lbl">Tribes</span></button>
+    <button class="ni" id="ni-profile" onclick="navTo('profile')"><span class="ni-ico">◎</span><span class="ni-lbl">Profile</span></button>
+  </nav>
+</div>
+<div id="toast"></div>
+
+<script>
+// ─── INLINE SVG VISUALS ────────────────────────────────────────────────────────
+// Each returns an SVG string tailored to its subject matter
+
+const VIS = {
+  // Community covers (800×400 landscape)
+  c1: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+    <defs>
+      <radialGradient id="c1g" cx="30%" cy="60%"><stop offset="0%" stop-color="#ff2d55" stop-opacity=".6"/><stop offset="100%" stop-color="#08080f"/></radialGradient>
+      <filter id="c1f"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" result="n"/><feColorMatrix type="saturate" values="0" in="n" result="g"/><feBlend in="SourceGraphic" in2="g" mode="overlay" result="b"/><feComposite in="b" in2="SourceGraphic"/></filter>
+    </defs>
+    <rect width="800" height="400" fill="#08080f"/>
+    <rect width="800" height="400" fill="url(#c1g)"/>
+    <!-- Grid lines -->
+    ${Array.from({length:16},(_,i)=>`<line x1="${i*54}" y1="0" x2="${i*54}" y2="400" stroke="#ff2d55" stroke-opacity=".07" stroke-width="1"/>`).join('')}
+    ${Array.from({length:9},(_,i)=>`<line x1="0" y1="${i*50}" x2="800" y2="${i*50}" stroke="#ff2d55" stroke-opacity=".05" stroke-width="1"/>`).join('')}
+    <!-- Circles -->
+    <circle cx="160" cy="200" r="120" fill="none" stroke="#ff2d55" stroke-opacity=".15" stroke-width="1"/>
+    <circle cx="160" cy="200" r="80" fill="none" stroke="#ff2d55" stroke-opacity=".1" stroke-width="1"/>
+    <circle cx="160" cy="200" r="40" fill="#ff2d55" fill-opacity=".08"/>
+    <!-- Waveform bars -->
+    ${Array.from({length:40},(_,i)=>{const h=20+Math.sin(i*.7)*60+Math.cos(i*.3)*30;return`<rect x="${380+i*11}" y="${200-h/2}" width="7" height="${h}" fill="#ff2d55" fill-opacity="${.15+Math.sin(i*.5)*.1}" rx="2"/>`}).join('')}
+    <!-- Dots -->
+    ${Array.from({length:12},(_,i)=>`<circle cx="${100+i*55}" cy="${50+Math.sin(i)*20}" r="2" fill="#ff2d55" fill-opacity=".3"/>`).join('')}
+    <text x="40" y="380" font-family="monospace" font-size="9" fill="#ff2d55" fill-opacity=".4" letter-spacing="4">TECHNO HEADS LA · 140+ BPM · WAREHOUSE SERIES</text>
+  </svg>`,
+
+  c2: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+    <defs>
+      <radialGradient id="c2g" cx="60%" cy="40%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".5"/><stop offset="100%" stop-color="#08080f"/></radialGradient>
+    </defs>
+    <rect width="800" height="400" fill="#0a0810"/>
+    <rect width="800" height="400" fill="url(#c2g)"/>
+    <!-- Vinyl record -->
+    <circle cx="200" cy="200" r="170" fill="#111" stroke="#7b61ff" stroke-opacity=".15" stroke-width="1"/>
+    <circle cx="200" cy="200" r="150" fill="none" stroke="#7b61ff" stroke-opacity=".08" stroke-width="1"/>
+    <circle cx="200" cy="200" r="120" fill="none" stroke="#7b61ff" stroke-opacity=".1" stroke-width="1"/>
+    <circle cx="200" cy="200" r="90" fill="none" stroke="#7b61ff" stroke-opacity=".12" stroke-width="1"/>
+    <circle cx="200" cy="200" r="60" fill="none" stroke="#7b61ff" stroke-opacity=".15" stroke-width="1"/>
+    <circle cx="200" cy="200" r="30" fill="#7b61ff" fill-opacity=".12"/>
+    <circle cx="200" cy="200" r="10" fill="#7b61ff" fill-opacity=".4"/>
+    <!-- Grooves -->
+    ${Array.from({length:8},(_,i)=>`<circle cx="200" cy="200" r="${105+i*6}" fill="none" stroke="#fff" stroke-opacity=".03" stroke-width="1.5"/>`).join('')}
+    <!-- Waveform right side -->
+    ${Array.from({length:35},(_,i)=>{const h=15+Math.sin(i*.8)*50+Math.cos(i*.4)*25;return`<rect x="${430+i*10}" y="${200-h/2}" width="6" height="${h}" fill="#7b61ff" fill-opacity="${.12+Math.sin(i*.6)*.08}" rx="2"/>`}).join('')}
+    <text x="420" y="380" font-family="monospace" font-size="9" fill="#7b61ff" fill-opacity=".4" letter-spacing="4">ANALOG SOUL · VINYL CULTURE · LISTENING SESSIONS</text>
+  </svg>`,
+
+  c3: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+    <defs>
+      <radialGradient id="c3g" cx="40%" cy="50%"><stop offset="0%" stop-color="#f5a623" stop-opacity=".45"/><stop offset="100%" stop-color="#0a0806"/></radialGradient>
+    </defs>
+    <rect width="800" height="400" fill="#0c0a06"/>
+    <rect width="800" height="400" fill="url(#c3g)"/>
+    <!-- Pottery wheel shape -->
+    <ellipse cx="220" cy="210" rx="130" ry="30" fill="#f5a623" fill-opacity=".06" stroke="#f5a623" stroke-opacity=".12" stroke-width="1"/>
+    <ellipse cx="220" cy="210" rx="90" ry="20" fill="none" stroke="#f5a623" stroke-opacity=".1" stroke-width="1"/>
+    <ellipse cx="220" cy="210" rx="50" ry="12" fill="none" stroke="#f5a623" stroke-opacity=".14" stroke-width="1"/>
+    <!-- Vessel silhouette -->
+    <path d="M 180 210 Q 150 140 170 80 Q 220 60 270 80 Q 290 140 260 210 Z" fill="#f5a623" fill-opacity=".08" stroke="#f5a623" stroke-opacity=".15" stroke-width="1.5"/>
+    <!-- Texture lines -->
+    ${Array.from({length:8},(_,i)=>`<path d="M ${170+i*3} ${210-i*16} Q ${220} ${210-i*17} ${270-i*3} ${210-i*16}" fill="none" stroke="#f5a623" stroke-opacity=".06" stroke-width="1"/>`).join('')}
+    <!-- Right side organic shapes -->
+    <circle cx="580" cy="150" r="80" fill="#f5a623" fill-opacity=".04" stroke="#f5a623" stroke-opacity=".06" stroke-width="1"/>
+    <circle cx="620" cy="270" r="50" fill="#f5a623" fill-opacity=".06" stroke="#f5a623" stroke-opacity=".08" stroke-width="1"/>
+    <text x="400" y="380" font-family="monospace" font-size="9" fill="#f5a623" fill-opacity=".4" letter-spacing="4">MUD &amp; CLAY · ECHO PARK · KILN ACCESS · STUDIO NIGHTS</text>
+  </svg>`,
+
+  c4: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+    <defs>
+      <radialGradient id="c4g" cx="70%" cy="30%"><stop offset="0%" stop-color="#00c9a7" stop-opacity=".4"/><stop offset="100%" stop-color="#050d0b"/></radialGradient>
+    </defs>
+    <rect width="800" height="400" fill="#050d0b"/>
+    <rect width="800" height="400" fill="url(#c4g)"/>
+    <!-- Abstract brush strokes -->
+    <rect x="60" y="80" width="180" height="240" fill="#00c9a7" fill-opacity=".06" rx="2"/>
+    <rect x="80" y="60" width="140" height="280" fill="none" stroke="#00c9a7" stroke-opacity=".1" stroke-width="1"/>
+    <!-- Paint splatters / geometric -->
+    ${[{x:120,y:150,r:40},{x:180,y:200,r:25},{x:140,y:260,r:30},{x:95,y:220,r:18}].map(c=>`<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="#00c9a7" fill-opacity=".07" stroke="#00c9a7" stroke-opacity=".1" stroke-width="1"/>`).join('')}
+    <!-- Color swatches right side -->
+    ${['#ff2d55','#7b61ff','#f5a623','#00c9a7','#e8b86d'].map((col,i)=>`<rect x="${450+i*60}" y="80" width="45" height="240" fill="${col}" fill-opacity=".08" rx="4"/><rect x="${450+i*60}" y="${80+i*30}" width="45" height="30" fill="${col}" fill-opacity=".15" rx="2"/>`).join('')}
+    <text x="40" y="380" font-family="monospace" font-size="9" fill="#00c9a7" fill-opacity=".4" letter-spacing="4">ABSTRACT STUDIO · CHINATOWN · PAINTERS · PRINTMAKERS</text>
+  </svg>`,
+
+  c5: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+    <defs>
+      <radialGradient id="c5g" cx="50%" cy="50%"><stop offset="0%" stop-color="#e8b86d" stop-opacity=".25"/><stop offset="100%" stop-color="#050403"/></radialGradient>
+    </defs>
+    <rect width="800" height="400" fill="#050403"/>
+    <rect width="800" height="400" fill="url(#c5g)"/>
+    <!-- Film strip -->
+    <rect x="40" y="100" width="120" height="200" fill="none" stroke="#e8b86d" stroke-opacity=".2" stroke-width="1.5"/>
+    ${Array.from({length:5},(_,i)=>`
+      <rect x="50" y="${110+i*38}" width="100" height="28" fill="#e8b86d" fill-opacity=".06" rx="1"/>
+      <rect x="43" y="${112+i*38}" width="10" height="8" fill="#e8b86d" fill-opacity=".2" rx="1"/>
+      <rect x="43" y="${124+i*38}" width="10" height="8" fill="#e8b86d" fill-opacity=".2" rx="1"/>
+      <rect x="147" y="${112+i*38}" width="10" height="8" fill="#e8b86d" fill-opacity=".2" rx="1"/>
+      <rect x="147" y="${124+i*38}" width="10" height="8" fill="#e8b86d" fill-opacity=".2" rx="1"/>
+    `).join('')}
+    <!-- Projector beam -->
+    <path d="M 400 0 L 250 400 L 550 400 Z" fill="#e8b86d" fill-opacity=".04"/>
+    <path d="M 400 0 L 300 400 L 500 400 Z" fill="#e8b86d" fill-opacity=".04"/>
+    <!-- Screen rectangle -->
+    <rect x="250" y="100" width="500" height="200" fill="none" stroke="#e8b86d" stroke-opacity=".12" stroke-width="1.5" rx="2"/>
+    <rect x="260" y="110" width="480" height="180" fill="#e8b86d" fill-opacity=".03" rx="1"/>
+    <text x="380" y="205" text-anchor="middle" font-family="monospace" font-size="10" fill="#e8b86d" fill-opacity=".2" letter-spacing="6">35MM</text>
+    <text x="40" y="380" font-family="monospace" font-size="9" fill="#e8b86d" fill-opacity=".4" letter-spacing="4">FILM CULT · 35MM PROJECTION · CINEFAMILY · Q&amp;A</text>
+  </svg>`,
+
+  // Event images (800×500 landscape)
+  e1: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <defs>
+      <radialGradient id="e1a" cx="50%" cy="100%"><stop offset="0%" stop-color="#ff2d55" stop-opacity=".7"/><stop offset="60%" stop-color="#1a0010"/><stop offset="100%" stop-color="#08080f"/></radialGradient>
+      <radialGradient id="e1b" cx="50%" cy="50%"><stop offset="0%" stop-color="#ff2d55" stop-opacity=".3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    </defs>
+    <rect width="800" height="500" fill="#08080f"/>
+    <rect width="800" height="500" fill="url(#e1a)"/>
+    <!-- Crowd silhouettes -->
+    ${Array.from({length:30},(_,i)=>{const x=i*28-10;const h=60+Math.sin(i*1.3)*30+Math.cos(i*.7)*20;return`<rect x="${x}" y="${500-h}" width="22" height="${h}" fill="#ff2d55" fill-opacity="${.08+Math.random()*.08}" rx="4"/>`}).join('')}
+    <!-- Strobe light beams -->
+    ${[60,200,400,600,740].map((x,i)=>`<path d="M ${x} 0 L ${x-80} 500 L ${x+80} 500 Z" fill="#ff2d55" fill-opacity="${.04+i*.01}"/>`).join('')}
+    <!-- Center glow -->
+    <ellipse cx="400" cy="200" rx="200" ry="150" fill="url(#e1b)"/>
+    <!-- Dots/particles -->
+    ${Array.from({length:20},(_,i)=>`<circle cx="${Math.sin(i*1.7)*300+400}" cy="${Math.cos(i*1.3)*180+250}" r="${2+Math.sin(i)*2}" fill="#ff2d55" fill-opacity="${.3+Math.sin(i)*.2}"/>`).join('')}
+    <text x="400" y="470" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff2d55" fill-opacity=".5" letter-spacing="6">WAREHOUSE 009 · DTLA · NO PHONES</text>
+  </svg>`,
+
+  e2: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <defs>
+      <radialGradient id="e2g" cx="40%" cy="50%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".5"/><stop offset="100%" stop-color="#08080f"/></radialGradient>
+    </defs>
+    <rect width="800" height="500" fill="#080810"/>
+    <rect width="800" height="500" fill="url(#e2g)"/>
+    <!-- Modular synth patch cables -->
+    ${Array.from({length:8},(_,i)=>{const y1=100+i*40;const y2=80+i*45;return`<path d="M 100 ${y1} Q 200 ${y1-30} 300 ${y2} Q 400 ${y2+20} 500 ${y1}" fill="none" stroke="#7b61ff" stroke-opacity="${.15+i*.03}" stroke-width="${2+i*.3}"/>`}).join('')}
+    <!-- Module grid -->
+    ${Array.from({length:6},(_,i)=>Array.from({length:4},(_,j)=>`<rect x="${80+i*110}" y="${80+j*90}" width="80" height="70" fill="#7b61ff" fill-opacity=".04" stroke="#7b61ff" stroke-opacity=".1" stroke-width="1" rx="3"/><circle cx="${120+i*110}" cy="${115+j*90}" r="12" fill="none" stroke="#7b61ff" stroke-opacity=".15" stroke-width="1"/>`).join('')).join('')}
+    <!-- Oscilloscope wave -->
+    <path d="${Array.from({length:100},(_,i)=>`${i===0?'M':''} ${i*8},${250+Math.sin(i*.4)*60+Math.sin(i*.8)*30}`).join(' ')}" fill="none" stroke="#7b61ff" stroke-opacity=".4" stroke-width="2"/>
+    <text x="400" y="480" text-anchor="middle" font-family="monospace" font-size="9" fill="#7b61ff" fill-opacity=".4" letter-spacing="5">ANALOG FREQUENCIES · MODULAR SYNTHESIS · LIVE PERFORMANCE</text>
+  </svg>`,
+
+  e3: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <defs>
+      <radialGradient id="e3g" cx="50%" cy="50%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".3"/><stop offset="100%" stop-color="#0a0810"/></radialGradient>
+    </defs>
+    <rect width="800" height="500" fill="#0c0a14"/>
+    <rect width="800" height="500" fill="url(#e3g)"/>
+    <!-- Record bins/shelves -->
+    ${Array.from({length:4},(_,i)=>`<rect x="60" y="${80+i*90}" width="680" height="70" fill="#7b61ff" fill-opacity=".04" stroke="#7b61ff" stroke-opacity=".08" stroke-width="1"/>`).join('')}
+    <!-- Record spines -->
+    ${Array.from({length:25},(_,i)=>{const colors=['#ff2d55','#7b61ff','#f5a623','#00c9a7','#e8b86d','#fff'];const col=colors[i%colors.length];const r=Math.floor(Math.random()*4);return`<rect x="${80+i*26}" y="${88+r*90}" width="20" height="54" fill="${col}" fill-opacity=".12" rx="1"/><rect x="${81+i*26}" y="${89+r*90}" width="18" height="52" fill="${col}" fill-opacity=".06" rx="1"/>`}).join('')}
+    <!-- Turntable -->
+    <circle cx="620" cy="260" r="110" fill="#111" stroke="#7b61ff" stroke-opacity=".15" stroke-width="2"/>
+    ${Array.from({length:6},(_,i)=>`<circle cx="620" cy="260" r="${30+i*14}" fill="none" stroke="#7b61ff" stroke-opacity=".06" stroke-width="1"/>`).join('')}
+    <circle cx="620" cy="260" r="20" fill="#7b61ff" fill-opacity=".15"/>
+    <circle cx="620" cy="260" r="8" fill="#7b61ff" fill-opacity=".4"/>
+    <!-- Tonearm -->
+    <line x1="680" y1="170" x2="630" y2="245" stroke="#7b61ff" stroke-opacity=".3" stroke-width="3" stroke-linecap="round"/>
+    <text x="400" y="480" text-anchor="middle" font-family="monospace" font-size="9" fill="#7b61ff" fill-opacity=".4" letter-spacing="5">SUNDAY SERVICE · AMOEBA MUSIC · COMMUNAL LISTENING</text>
+  </svg>`,
+
+  e4: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <rect width="800" height="500" fill="#0a0810"/>
+    <defs><radialGradient id="e4g" cx="50%" cy="50%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".25"/><stop offset="100%" stop-color="#0a0810"/></radialGradient></defs>
+    <rect width="800" height="500" fill="url(#e4g)"/>
+    <!-- Japanese-inspired grid -->
+    ${Array.from({length:12},(_,i)=>`<line x1="${i*70}" y1="0" x2="${i*70}" y2="500" stroke="#7b61ff" stroke-opacity=".05" stroke-width="1"/><line x1="0" y1="${i*45}" x2="800" y2="${i*45}" stroke="#7b61ff" stroke-opacity=".04" stroke-width="1"/>`).join('')}
+    <!-- OBI strip representation -->
+    <rect x="100" y="100" width="600" height="300" fill="#7b61ff" fill-opacity=".04" stroke="#7b61ff" stroke-opacity=".12" stroke-width="1.5" rx="2"/>
+    <rect x="100" y="100" width="60" height="300" fill="#7b61ff" fill-opacity=".1" rx="2 0 0 2"/>
+    <!-- Japanese text style marks -->
+    ${Array.from({length:5},(_,i)=>`<rect x="${115}" y="${120+i*50}" width="30" height="8" fill="#7b61ff" fill-opacity=".3" rx="1"/>`).join('')}
+    <!-- Vinyl label circles -->
+    <circle cx="550" cy="250" r="90" fill="#0a0810" stroke="#7b61ff" stroke-opacity=".15" stroke-width="2"/>
+    <circle cx="550" cy="250" r="60" fill="none" stroke="#7b61ff" stroke-opacity=".08" stroke-width="1"/>
+    <circle cx="550" cy="250" r="30" fill="#7b61ff" fill-opacity=".12"/>
+    <circle cx="550" cy="250" r="10" fill="#7b61ff" fill-opacity=".4"/>
+    <text x="400" y="475" text-anchor="middle" font-family="monospace" font-size="9" fill="#7b61ff" fill-opacity=".4" letter-spacing="5">DEEP DIG · JAPAN PRESS 1968–1988 · RECORD JUNGLE</text>
+  </svg>`,
+
+  e5: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <defs><radialGradient id="e5g" cx="40%" cy="60%"><stop offset="0%" stop-color="#f5a623" stop-opacity=".4"/><stop offset="100%" stop-color="#0c0a06"/></radialGradient></defs>
+    <rect width="800" height="500" fill="#0e0c08"/>
+    <rect width="800" height="500" fill="url(#e5g)"/>
+    <!-- Potter's hands on wheel (abstract) -->
+    <ellipse cx="260" cy="300" rx="140" ry="35" fill="#f5a623" fill-opacity=".06" stroke="#f5a623" stroke-opacity=".15" stroke-width="1.5"/>
+    <ellipse cx="260" cy="300" rx="100" ry="25" fill="none" stroke="#f5a623" stroke-opacity=".1" stroke-width="1"/>
+    <!-- Clay vessel -->
+    <path d="M 200 300 Q 170 220 185 140 Q 260 110 335 140 Q 350 220 320 300 Z" fill="#f5a623" fill-opacity=".09" stroke="#f5a623" stroke-opacity=".2" stroke-width="1.5"/>
+    <!-- Glaze drips -->
+    ${[{x:220,c:'#f5a623'},{x:260,c:'#e8b86d'},{x:300,c:'#ff8c42'}].map((g,i)=>`<path d="M ${g.x} 160 Q ${g.x+5} 200 ${g.x-3} 240 Q ${g.x+2} 270 ${g.x} 300" fill="none" stroke="${g.c}" stroke-opacity=".2" stroke-width="3" stroke-linecap="round"/>`).join('')}
+    <!-- Right side: glaze swatches -->
+    ${[{col:'#00c9a7',y:100},{col:'#7b61ff',y:160},{col:'#f5a623',y:220},{col:'#ff2d55',y:280},{col:'#e8b86d',y:340}].map(g=>`<circle cx="620" cy="${g.y+30}" r="30" fill="${g.col}" fill-opacity=".15" stroke="${g.col}" stroke-opacity=".2" stroke-width="1.5"/>`).join('')}
+    <text x="400" y="480" text-anchor="middle" font-family="monospace" font-size="9" fill="#f5a623" fill-opacity=".45" letter-spacing="5">OPEN GLAZE NIGHT · ECHO PARK STUDIO · 14 COLORS</text>
+  </svg>`,
+
+  e6: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <defs><radialGradient id="e6g" cx="60%" cy="40%"><stop offset="0%" stop-color="#00c9a7" stop-opacity=".3"/><stop offset="100%" stop-color="#050d0b"/></radialGradient></defs>
+    <rect width="800" height="500" fill="#060e0b"/>
+    <rect width="800" height="500" fill="url(#e6g)"/>
+    <!-- Canvas frames on wall -->
+    ${[{x:50,y:60,w:160,h:200},{x:240,y:80,w:120,h:160},{x:390,y:50,w:200,h:250},{x:620,y:90,w:130,h:170}].map((f,i)=>{
+      const cols=['#00c9a7','#7b61ff','#ff2d55','#f5a623'];
+      return`<rect x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" fill="${cols[i]}" fill-opacity=".06" stroke="${cols[i]}" stroke-opacity=".15" stroke-width="2" rx="1"/>
+      <rect x="${f.x+10}" y="${f.y+10}" width="${f.w-20}" height="${f.h-20}" fill="${cols[i]}" fill-opacity=".04" rx="1"/>
+      <!-- abstract marks inside -->
+      <circle cx="${f.x+f.w/2}" cy="${f.y+f.h/2}" r="${Math.min(f.w,f.h)/3}" fill="${cols[i]}" fill-opacity=".06"/>`;
+    }).join('')}
+    <!-- Floor line -->
+    <line x1="0" y1="350" x2="800" y2="350" stroke="#00c9a7" stroke-opacity=".08" stroke-width="1"/>
+    <!-- Person silhouette (artist) -->
+    <ellipse cx="520" cy="315" rx="15" ry="18" fill="#00c9a7" fill-opacity=".12"/>
+    <rect x="510" y="330" width="20" height="30" fill="#00c9a7" fill-opacity=".1" rx="3"/>
+    <text x="400" y="480" text-anchor="middle" font-family="monospace" font-size="9" fill="#00c9a7" fill-opacity=".4" letter-spacing="5">OPEN STUDIO · CHINATOWN · SIX ARTISTS · ALL WELCOME</text>
+  </svg>`,
+
+  e7: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    <defs>
+      <radialGradient id="e7g" cx="50%" cy="30%"><stop offset="0%" stop-color="#e8b86d" stop-opacity=".35"/><stop offset="100%" stop-color="#050403"/></radialGradient>
+    </defs>
+    <rect width="800" height="500" fill="#050403"/>
+    <rect width="800" height="500" fill="url(#e7g)"/>
+    <!-- Projector beam from top -->
+    <path d="M 400 0 L 100 500 L 700 500 Z" fill="#e8b86d" fill-opacity=".05"/>
+    <path d="M 400 0 L 200 500 L 600 500 Z" fill="#e8b86d" fill-opacity=".04"/>
+    <path d="M 400 0 L 300 500 L 500 500 Z" fill="#e8b86d" fill-opacity=".04"/>
+    <!-- Cinema screen -->
+    <rect x="100" y="100" width="600" height="280" fill="#e8b86d" fill-opacity=".04" stroke="#e8b86d" stroke-opacity=".15" stroke-width="2"/>
+    <!-- Film grain dots on screen -->
+    ${Array.from({length:40},(_,i)=>`<circle cx="${120+Math.sin(i*2.3)*260+260}" cy="${120+Math.cos(i*1.7)*110+140}" r="${1+Math.sin(i)}" fill="#e8b86d" fill-opacity="${.06+Math.sin(i)*.04}"/>`).join('')}
+    <!-- Seat silhouettes -->
+    ${Array.from({length:12},(_,i)=>`<rect x="${60+i*58}" y="430" width="40" height="25" fill="#e8b86d" fill-opacity=".06" rx="4 4 0 0"/>`).join('')}
+    <!-- Film strip sprockets along edge -->
+    ${Array.from({length:8},(_,i)=>`<rect x="20" y="${60+i*55}" width="25" height="40" fill="none" stroke="#e8b86d" stroke-opacity=".12" stroke-width="1" rx="1"/><rect x="24" y="${64+i*55}" width="17" height="32" fill="#e8b86d" fill-opacity=".04" rx="1"/>`).join('')}
+    <text x="400" y="480" text-anchor="middle" font-family="monospace" font-size="9" fill="#e8b86d" fill-opacity=".45" letter-spacing="5">POSSESSION 1981 · 35MM · CINEFAMILY · Q&amp;A TO FOLLOW</text>
+  </svg>`,
+
+  // Media post squares (600×600)
+  m1: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#08080f"/>
+    <defs><radialGradient id="m1g" cx="50%" cy="80%"><stop offset="0%" stop-color="#ff2d55" stop-opacity=".8"/><stop offset="100%" stop-color="#08080f"/></radialGradient></defs>
+    <rect width="600" height="600" fill="url(#m1g)"/>
+    ${Array.from({length:20},(_,i)=>{const h=40+Math.sin(i*.9)*80;return`<rect x="${i*32}" y="${600-h}" width="28" height="${h}" fill="#ff2d55" fill-opacity="${.1+Math.sin(i)*.08}" rx="3"/>`}).join('')}
+    ${[100,200,300,400,500].map(x=>`<path d="M ${x} 0 L ${x-60} 600 L ${x+60} 600 Z" fill="#ff2d55" fill-opacity=".04"/>`).join('')}
+    ${Array.from({length:15},(_,i)=>`<circle cx="${Math.sin(i*2)*250+300}" cy="${Math.cos(i*1.5)*200+300}" r="${3+Math.sin(i)*2}" fill="#ff2d55" fill-opacity="${.25+Math.sin(i)*.15}"/>`).join('')}
+  </svg>`,
+
+  m2: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#0a0810"/>
+    <defs><radialGradient id="m2g" cx="40%" cy="40%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".5"/><stop offset="100%" stop-color="#0a0810"/></radialGradient></defs>
+    <rect width="600" height="600" fill="url(#m2g)"/>
+    <!-- Record close up -->
+    <circle cx="300" cy="300" r="250" fill="#111" stroke="#7b61ff" stroke-opacity=".1" stroke-width="2"/>
+    ${Array.from({length:12},(_,i)=>`<circle cx="300" cy="300" r="${50+i*17}" fill="none" stroke="#7b61ff" stroke-opacity="${.04+i*.007}" stroke-width="1.5"/>`).join('')}
+    <circle cx="300" cy="300" r="40" fill="#7b61ff" fill-opacity=".15"/>
+    <circle cx="300" cy="300" r="15" fill="#7b61ff" fill-opacity=".5"/>
+    <!-- Label text -->
+    <text x="300" y="290" text-anchor="middle" font-family="monospace" font-size="8" fill="#7b61ff" fill-opacity=".5" letter-spacing="2">RYUICHI SAKAMOTO</text>
+    <text x="300" y="305" text-anchor="middle" font-family="monospace" font-size="7" fill="#7b61ff" fill-opacity=".4" letter-spacing="1">B-2 UNIT</text>
+  </svg>`,
+
+  m3: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#060e0b"/>
+    <defs><radialGradient id="m3g" cx="60%" cy="40%"><stop offset="0%" stop-color="#00c9a7" stop-opacity=".35"/><stop offset="100%" stop-color="#060e0b"/></radialGradient></defs>
+    <rect width="600" height="600" fill="url(#m3g)"/>
+    <!-- Large canvas painting abstract -->
+    <rect x="60" y="60" width="480" height="480" fill="#00c9a7" fill-opacity=".04" stroke="#00c9a7" stroke-opacity=".12" stroke-width="2"/>
+    <rect x="80" y="80" width="440" height="440" fill="none" stroke="#00c9a7" stroke-opacity=".06" stroke-width="1"/>
+    <!-- Abstract brush marks -->
+    ${[{x:100,y:200,w:200,h:12,r:-15},{x:200,y:300,w:300,h:8,r:5},{x:80,y:380,w:180,h:15,r:-8},{x:300,y:150,w:150,h:10,r:12}].map(b=>`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="#00c9a7" fill-opacity=".15" rx="4" transform="rotate(${b.r} ${b.x+b.w/2} ${b.y+b.h/2})"/>`).join('')}
+    <circle cx="350" cy="280" r="80" fill="#00c9a7" fill-opacity=".06" stroke="#00c9a7" stroke-opacity=".1" stroke-width="1"/>
+    <circle cx="200" cy="350" r="50" fill="#ff2d55" fill-opacity=".06"/>
+  </svg>`,
+
+  m4: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#080810"/>
+    <defs><radialGradient id="m4g" cx="50%" cy="50%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".4"/><stop offset="100%" stop-color="#080810"/></radialGradient></defs>
+    <rect width="600" height="600" fill="url(#m4g)"/>
+    <!-- Eurorack module grid -->
+    ${Array.from({length:4},(_,i)=>Array.from({length:3},(_,j)=>`
+      <rect x="${80+j*160}" y="${60+i*120}" width="130" height="90" fill="#7b61ff" fill-opacity=".05" stroke="#7b61ff" stroke-opacity=".12" stroke-width="1" rx="3"/>
+      <circle cx="${145+j*160}" cy="${100+i*120}" r="14" fill="none" stroke="#7b61ff" stroke-opacity=".2" stroke-width="1.5"/>
+      <circle cx="${145+j*160}" cy="${100+i*120}" r="5" fill="#7b61ff" fill-opacity=".35"/>
+      <rect x="${90+j*160}" y="${120+i*120}" width="20" height="10" fill="#7b61ff" fill-opacity=".1" rx="2"/>
+    `).join('')).join('')}
+    <!-- Patch cables -->
+    ${Array.from({length:6},(_,i)=>`<path d="M ${145+Math.floor(i/2)*160} ${100+i*60} Q ${300} ${200+i*30} ${145+(i%3)*160} ${200+i*40}" fill="none" stroke="#7b61ff" stroke-opacity=".2" stroke-width="${2+i*.3}"/>`).join('')}
+    <!-- Oscilloscope -->
+    <path d="${Array.from({length:80},(_,i)=>`${i===0?'M':''} ${i*7.5+30},${480+Math.sin(i*.5)*30+Math.sin(i*.2)*15}`).join(' ')}" fill="none" stroke="#7b61ff" stroke-opacity=".5" stroke-width="2"/>
+  </svg>`,
+
+  m5: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#0e0c08"/>
+    <defs><radialGradient id="m5g" cx="50%" cy="50%"><stop offset="0%" stop-color="#f5a623" stop-opacity=".4"/><stop offset="100%" stop-color="#0e0c08"/></radialGradient></defs>
+    <rect width="600" height="600" fill="url(#m5g)"/>
+    <!-- Ceramic bowls top view -->
+    <ellipse cx="300" cy="300" rx="220" ry="50" fill="#f5a623" fill-opacity=".06" stroke="#f5a623" stroke-opacity=".15" stroke-width="2"/>
+    <ellipse cx="300" cy="300" rx="180" ry="40" fill="none" stroke="#f5a623" stroke-opacity=".1" stroke-width="1"/>
+    <ellipse cx="300" cy="300" rx="120" ry="26" fill="#f5a623" fill-opacity=".08"/>
+    <!-- Vessel side view -->
+    <path d="M 220 300 Q 180 180 200 80 Q 300 50 400 80 Q 420 180 380 300 Z" fill="#f5a623" fill-opacity=".07" stroke="#f5a623" stroke-opacity=".2" stroke-width="2"/>
+    <!-- Glaze texture lines -->
+    ${Array.from({length:10},(_,i)=>`<path d="M ${210+i*2} ${300-i*22} Q ${300} ${295-i*23} ${390-i*2} ${300-i*22}" fill="none" stroke="#f5a623" stroke-opacity=".05" stroke-width="1"/>`).join('')}
+    <!-- Blue-black glaze drip -->
+    <path d="M 270 100 Q 275 160 268 220 Q 265 260 272 300" fill="none" stroke="#00c9a7" stroke-opacity=".3" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 320 90 Q 318 150 325 210" fill="none" stroke="#00c9a7" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  m6: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#050403"/>
+    <defs>
+      <radialGradient id="m6g" cx="50%" cy="40%"><stop offset="0%" stop-color="#e8b86d" stop-opacity=".4"/><stop offset="100%" stop-color="#050403"/></radialGradient>
+    </defs>
+    <rect width="600" height="600" fill="url(m6g)"/>
+    <rect width="600" height="600" fill="url(#m6g)"/>
+    <!-- Film frame held to light -->
+    <rect x="100" y="80" width="400" height="440" fill="#e8b86d" fill-opacity=".05" stroke="#e8b86d" stroke-opacity=".2" stroke-width="2"/>
+    <!-- Sprocket holes -->
+    ${Array.from({length:8},(_,i)=>`
+      <rect x="108" y="${95+i*52}" width="22" height="35" fill="none" stroke="#e8b86d" stroke-opacity=".2" stroke-width="1.5" rx="3"/>
+      <rect x="471" y="${95+i*52}" width="22" height="35" fill="none" stroke="#e8b86d" stroke-opacity=".2" stroke-width="1.5" rx="3"/>
+    `).join('')}
+    <!-- Image area with light leak -->
+    <rect x="140" y="100" width="320" height="400" fill="#e8b86d" fill-opacity=".06"/>
+    <path d="M 300 0 L 200 600 L 400 600 Z" fill="#e8b86d" fill-opacity=".06"/>
+    <!-- Film grain -->
+    ${Array.from({length:30},(_,i)=>`<circle cx="${140+Math.random()*320}" cy="${100+Math.random()*400}" r="1" fill="#e8b86d" fill-opacity="${.15+Math.random()*.2}"/>`).join('')}
+    <text x="300" y="570" text-anchor="middle" font-family="monospace" font-size="8" fill="#e8b86d" fill-opacity=".4" letter-spacing="4">35MM GAUMONT ARCHIVE PRINT</text>
+  </svg>`,
+
+  m7: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#0a0810"/>
+    <defs><radialGradient id="m7g" cx="30%" cy="60%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".35"/><stop offset="100%" stop-color="#0a0810"/></radialGradient></defs>
+    <rect width="600" height="600" fill="url(#m7g)"/>
+    <!-- Record store bins - Sunday Service -->
+    ${Array.from({length:3},(_,i)=>`<rect x="40" y="${100+i*140}" width="520" height="110" fill="#7b61ff" fill-opacity=".04" stroke="#7b61ff" stroke-opacity=".08" stroke-width="1"/>`).join('')}
+    <!-- Records in bin -->
+    ${Array.from({length:20},(_,i)=>{const cols=['#ff2d55','#7b61ff','#f5a623','#00c9a7','#e8b86d','#eee'];const c=cols[i%cols.length];const row=Math.floor(i/7);return`<rect x="${60+i*26-row*180}" y="${108+row*140}" width="18" height="94" fill="${c}" fill-opacity=".12" rx="1"/>`}).join('')}
+    <!-- Tonearm needle close up -->
+    <circle cx="430" cy="380" r="100" fill="#111" stroke="#7b61ff" stroke-opacity=".1" stroke-width="2"/>
+    ${Array.from({length:5},(_,i)=>`<circle cx="430" cy="380" r="${20+i*18}" fill="none" stroke="#7b61ff" stroke-opacity=".06" stroke-width="1"/>`).join('')}
+    <circle cx="430" cy="380" r="8" fill="#7b61ff" fill-opacity=".5"/>
+    <line x1="500" y1="300" x2="435" y2="375" stroke="#7b61ff" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  m8: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+    <rect width="600" height="600" fill="#08080f"/>
+    <defs>
+      <radialGradient id="m8a" cx="50%" cy="80%"><stop offset="0%" stop-color="#ff2d55" stop-opacity=".6"/><stop offset="100%" stop-color="#08080f"/></radialGradient>
+      <radialGradient id="m8b" cx="30%" cy="30%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    </defs>
+    <rect width="600" height="600" fill="url(#m8a)"/>
+    <rect width="600" height="600" fill="url(#m8b)"/>
+    <!-- Speaker cone -->
+    <circle cx="300" cy="300" r="240" fill="none" stroke="#ff2d55" stroke-opacity=".1" stroke-width="2"/>
+    <circle cx="300" cy="300" r="180" fill="none" stroke="#ff2d55" stroke-opacity=".12" stroke-width="1"/>
+    <circle cx="300" cy="300" r="120" fill="none" stroke="#ff2d55" stroke-opacity=".15" stroke-width="1"/>
+    <circle cx="300" cy="300" r="60" fill="#ff2d55" fill-opacity=".08"/>
+    <circle cx="300" cy="300" r="25" fill="#ff2d55" fill-opacity=".2"/>
+    <!-- Sound wave emanations -->
+    ${Array.from({length:6},(_,i)=>`<circle cx="300" cy="300" r="${80+i*30}" fill="none" stroke="#ff2d55" stroke-opacity="${.06-i*.008}" stroke-width="1" stroke-dasharray="4 8"/>`).join('')}
+    <!-- Crowd dots -->
+    ${Array.from({length:20},(_,i)=>`<circle cx="${Math.sin(i*.5)*220+300}" cy="${560+Math.cos(i*.3)*15}" r="8" fill="#ff2d55" fill-opacity="${.1+Math.sin(i)*.05}"/>`).join('')}
+  </svg>`,
+
+  // Upload picker thumbs (200×200) — reuse community/event visuals at smaller size
+  u1:`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#08080f"/><defs><radialGradient id="u1g" cx="50%" cy="80%"><stop offset="0%" stop-color="#ff2d55" stop-opacity=".7"/><stop offset="100%" stop-color="#08080f"/></radialGradient></defs><rect width="200" height="200" fill="url(#u1g)"/>${Array.from({length:8},(_,i)=>{const h=20+Math.sin(i*.9)*40;return`<rect x="${i*26}" y="${200-h}" width="22" height="${h}" fill="#ff2d55" fill-opacity=".15" rx="2"/>`}).join('')}<text x="100" y="60" text-anchor="middle" font-family="monospace" font-size="7" fill="#ff2d55" fill-opacity=".5" letter-spacing="2">WAREHOUSE</text></svg>`,
+  u2:`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#0a0810"/><circle cx="100" cy="100" r="80" fill="#111" stroke="#7b61ff" stroke-opacity=".2" stroke-width="2"/>${Array.from({length:5},(_,i)=>`<circle cx="100" cy="100" r="${20+i*13}" fill="none" stroke="#7b61ff" stroke-opacity=".08" stroke-width="1"/>`).join('')}<circle cx="100" cy="100" r="10" fill="#7b61ff" fill-opacity=".5"/><text x="100" y="175" text-anchor="middle" font-family="monospace" font-size="7" fill="#7b61ff" fill-opacity=".5" letter-spacing="2">VINYL</text></svg>`,
+  u3:`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#0e0c08"/><defs><radialGradient id="u3g" cx="40%" cy="60%"><stop offset="0%" stop-color="#f5a623" stop-opacity=".5"/><stop offset="100%" stop-color="#0e0c08"/></radialGradient></defs><rect width="200" height="200" fill="url(#u3g)"/><ellipse cx="100" cy="120" rx="60" ry="14" fill="#f5a623" fill-opacity=".1" stroke="#f5a623" stroke-opacity=".2" stroke-width="1"/><path d="M 70 120 Q 60 80 68 40 Q 100 28 132 40 Q 140 80 130 120 Z" fill="#f5a623" fill-opacity=".1" stroke="#f5a623" stroke-opacity=".2" stroke-width="1.5"/><text x="100" y="175" text-anchor="middle" font-family="monospace" font-size="7" fill="#f5a623" fill-opacity=".5" letter-spacing="2">CERAMICS</text></svg>`,
+  u4:`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#060e0b"/><defs><radialGradient id="u4g" cx="60%" cy="40%"><stop offset="0%" stop-color="#00c9a7" stop-opacity=".35"/><stop offset="100%" stop-color="#060e0b"/></radialGradient></defs><rect width="200" height="200" fill="url(#u4g)"/><rect x="30" y="30" width="140" height="140" fill="#00c9a7" fill-opacity=".05" stroke="#00c9a7" stroke-opacity=".15" stroke-width="1.5"/>${[{x:50,y:80,w:60,h:8},{x:70,y:100,w:90,h:6},{x:40,y:120,w:70,h:8}].map(b=>`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="#00c9a7" fill-opacity=".2" rx="3"/>`).join('')}<text x="100" y="185" text-anchor="middle" font-family="monospace" font-size="7" fill="#00c9a7" fill-opacity=".5" letter-spacing="2">STUDIO</text></svg>`,
+  u5:`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#080810"/><defs><radialGradient id="u5g" cx="50%" cy="50%"><stop offset="0%" stop-color="#7b61ff" stop-opacity=".4"/><stop offset="100%" stop-color="#080810"/></radialGradient></defs><rect width="200" height="200" fill="url(#u5g)"/>${Array.from({length:6},(_,i)=>`<rect x="${20+i*30}" y="${40+Math.sin(i)*.20}" width="22" height="100" fill="#7b61ff" fill-opacity=".08" stroke="#7b61ff" stroke-opacity=".12" stroke-width="1" rx="2"/><circle cx="${31+i*30}" cy="${70+i*10}" r="8" fill="none" stroke="#7b61ff" stroke-opacity=".2" stroke-width="1"/>`).join('')}<path d="${Array.from({length:40},(_,i)=>`${i===0?'M':''} ${i*5+10},${160+Math.sin(i*.5)*20}`).join(' ')}" fill="none" stroke="#7b61ff" stroke-opacity=".4" stroke-width="1.5"/><text x="100" y="195" text-anchor="middle" font-family="monospace" font-size="7" fill="#7b61ff" fill-opacity=".5" letter-spacing="2">MODULAR</text></svg>`,
+  u6:`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#050403"/><defs><radialGradient id="u6g" cx="50%" cy="30%"><stop offset="0%" stop-color="#e8b86d" stop-opacity=".4"/><stop offset="100%" stop-color="#050403"/></radialGradient></defs><rect width="200" height="200" fill="url(#u6g)"/><path d="M 100 0 L 30 200 L 170 200 Z" fill="#e8b86d" fill-opacity=".06"/><rect x="30" y="50" width="140" height="100" fill="none" stroke="#e8b86d" stroke-opacity=".15" stroke-width="1.5"/><rect x="38" y="58" width="124" height="84" fill="#e8b86d" fill-opacity=".04"/>${Array.from({length:5},(_,i)=>`<rect x="18" y="${58+i*18}" width="14" height="12" fill="none" stroke="#e8b86d" stroke-opacity=".15" stroke-width="1" rx="1"/>`).join('')}<text x="100" y="185" text-anchor="middle" font-family="monospace" font-size="7" fill="#e8b86d" fill-opacity=".5" letter-spacing="2">CINEMA</text></svg>`,
+};
+
+function svgToDataUri(svg){ return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg))); }
+const IMG = {};
+Object.keys(VIS).forEach(k => IMG[k] = svgToDataUri(VIS[k]));
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const COMMUNITIES = [
+  { id:'c1', name:'TECHNO HEADS LA', tag:'MUSIC · NIGHTLIFE', color:'#ff2d55',
+    desc:'LA\'s underground techno network — warehouse parties, secret lineups, no phones on the main floor. Industrial textures, 140+ BPM, 6 hours of unbroken sound in raw industrial spaces. If you\'re looking for bottle service this isn\'t your scene.',
+    members:1234, events:['e1','e2'] },
+  { id:'c2', name:'ANALOG SOUL', tag:'MUSIC · VINYL', color:'#7b61ff',
+    desc:'Serious record heads obsessed with the ritual of putting a needle on wax. Sunday listening sessions at Amoeba, monthly deep-digs at independent stores. Japanese imports, soul, jazz, electronic — all welcome. We dig, we share, we argue about pressings.',
+    members:412, events:['e3','e4'] },
+  { id:'c3', name:'MUD & CLAY', tag:'ART · CERAMICS', color:'#f5a623',
+    desc:'A working ceramics community out of Echo Park. Shared kiln access, Tuesday and Thursday studio nights, open glaze sessions. From beginners throwing their first bowl to production potters. Bring clay, bring curiosity.',
+    members:89, events:['e5'] },
+  { id:'c4', name:'ABSTRACT STUDIO', tag:'ART · CONTEMPORARY', color:'#00c9a7',
+    desc:'LA-based painters, printmakers, and mixed-media artists building work in public. Monthly open studios in Chinatown. Critique sessions, process over product. Emerging and established side by side. The walls are always changing.',
+    members:203, events:['e6'] },
+  { id:'c5', name:'FILM CULT', tag:'CINEMA · CULTURE', color:'#e8b86d',
+    desc:'35mm screenings, rare prints, director Q&As, and deeply opinionated film discussion. Polish cinema, Italian horror, experimental shorts, American new wave. We project at Cinefamily and pop-up venues. No streaming links — only real projection.',
+    members:567, events:['e7'] },
+];
+
+const EVENTS = [
+  { id:'e1', title:'WAREHOUSE 009: DEPTH', cid:'c1', date:'Nov 18 · 22:00', loc:'Secret Location, DTLA', price:2500, cap:300, going:243,
+    desc:'Nine editions in. Four rooms, eight hours, one rule: no phones on the main floor. Sheffield-influenced minimal techno through to industrial loops. Address released 21:00 via SMS. Expect 6 hours of uncompromising sound.' },
+  { id:'e2', title:'ANALOG FREQUENCIES', cid:'c1', date:'Nov 25 · 21:00', loc:'Resident, Los Angeles', price:2000, cap:150, going:88,
+    desc:'Modular synthesis and live electronic performance in Resident\'s back room. Three artists performing uninterrupted sets built from patch cables and oscillators — no laptops. The sound system is tuned for low-end and spatial audio. Capacity 150.' },
+  { id:'e3', title:'SUNDAY SERVICE', cid:'c2', date:'Nov 24 · 14:00', loc:'Amoeba Music, Hollywood', price:0, cap:80, going:56,
+    desc:'Two hours of communal listening every Sunday. Bring a record — we play a side, talk about it, move on. No genre rules, no gatekeeping. Haitian compas to ECM jazz in the same session. Coffee encouraged. Show up and add to the pile.' },
+  { id:'e4', title:'DEEP DIG: JAPAN PRESS', cid:'c2', date:'Dec 2 · 12:00', loc:'Record Jungle, Silver Lake', price:0, cap:30, going:22,
+    desc:'Two hours focused entirely on Japanese pressings from 1968–1988. Record Jungle opens their back stock — OBI strips, city pop, jazz fusion, Nippon Columbia classicals. Collector Kenji Yamamoto on hand. Limited to 30. Bring cash.' },
+  { id:'e5', title:'OPEN GLAZE NIGHT', cid:'c3', date:'Nov 19 · 18:00', loc:'Echo Park Studio, Alvarado St', price:0, cap:20, going:14,
+    desc:'Bring your bisqueware. 14 glaze colors — matte, glossy, reactive, and experimental. Two kilns running. Work fired overnight, pickup Thursday. Beginners welcome. We\'ll show you how to wax, glaze, and load the kiln. Cold drinks included.' },
+  { id:'e6', title:'OPEN STUDIO: NOV', cid:'c4', date:'Nov 22 · 17:00', loc:'Far East Plaza, Chinatown', price:0, cap:60, going:38,
+    desc:'Six Abstract Studio artists open their Chinatown spaces. Oil painting series, industrial screen prints, salvaged-signage sculpture, and three painters whose work you\'ve probably seen but never connected to a face. Come and ask questions.' },
+  { id:'e7', title:'POSSESSION (1981) 35MM', cid:'c5', date:'Nov 21 · 20:30', loc:'Cinefamily, Fairfax Ave', price:1500, cap:90, going:71,
+    desc:'Żuławski\'s 1981 masterpiece on a Gaumont archive 35mm print. Adjani\'s Cannes-winning performance has never looked better on film. 127 mins, no intermission. Film scholar Anna Batori speaks before. Full post-screening discussion follows.' },
+];
+
+const MEDIA = [
+  { id:'m1', cid:'c1', eid:'e1', caption:'Warehouse 009 didn\'t stop until 6am. The closing set was 90 minutes of pure locked-in Berlin techno. Already waiting for W010.', author:'marcus_t', time:'2h ago' },
+  { id:'m2', cid:'c2', eid:null, caption:'First-press Ryuichi Sakamoto \'B-2 Unit\' from a Little Tokyo bin for $8. OBI is flawless. Some days this city gives back.', author:'devon_l', time:'4h ago' },
+  { id:'m3', cid:'c4', eid:'e6', caption:'Three weeks into this canvas. Open studio Friday — come argue with me about it in person.', author:'fen_t', time:'6h ago' },
+  { id:'m4', cid:'c1', eid:null, caption:'Eurorack patched at Resident before doors. Entirely improvised tonight — no saved patches, no safety net.', author:'priya_s', time:'8h ago' },
+  { id:'m5', cid:'c3', eid:'e5', caption:'Iron-saturate tenmoku out of the kiln. Cracked into this blue-black I wasn\'t expecting. Running 50 more with this combo.', author:'sasha_m', time:'12h ago' },
+  { id:'m6', cid:'c5', eid:'e7', caption:'35mm Gaumont print of Possession arrived. Held a frame to the light — the color density is extraordinary. Friday night is going to be something.', author:'remi_o', time:'1d ago' },
+  { id:'m7', cid:'c2', eid:'e3', caption:'Sunday Service: Tatsuro Yamashita promo and sealed Minnie Riperton on GRT in the same session. Two hours of pure discovery.', author:'marcus_t', time:'1d ago' },
+  { id:'m8', cid:'c1', eid:null, caption:'Pre-game for W009. If you hear this on the main floor it means we started early. See you in the dark.', author:'devon_l', time:'2d ago' },
+];
+const MEMBERS = [{n:'kaelen_v',r:'ADMIN'},{n:'marcus_t',r:'MOD'},{n:'devon_l',r:'MEMBER'},{n:'priya_s',r:'MEMBER'},{n:'noah_k',r:'MEMBER'},{n:'leyla_w',r:'MEMBER'}];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let joined = new Set(['c1','c2']);
+let tickets = new Set();
+let mediaList = [...MEDIA];
+let navHistory = [];
+let route = {page:'feed',id:null};
+let evFilter = 'all', commTab = 'feed', profileTab = 'tickets', selectedUpload = null;
+
+function gc(id){return COMMUNITIES.find(c=>c.id===id)}
+function ge(id){return EVENTS.find(e=>e.id===id)}
+function price(c){return c===0?'Free':'$'+(c/100).toFixed(0)}
+
+// ─── ROUTING ──────────────────────────────────────────────────────────────────
+function navTo(page,id=null,push=true){
+  if(push) navHistory.push({...route});
+  route={page,id};
+  document.querySelectorAll('.ni').forEach(b=>{b.classList.remove('on');b.querySelector('.ni-bar')?.remove()});
+  const map={feed:'ni-feed',events:'ni-events',event:'ni-events',communities:'ni-communities',community:'ni-communities',profile:'ni-profile'};
+  const nb = document.getElementById(map[page]);
+  if(nb){nb.classList.add('on');if(!nb.querySelector('.ni-bar')){const d=document.createElement('div');d.className='ni-bar';nb.appendChild(d)}}
+  render();
+  document.getElementById('scroll').scrollTop=0;
+}
+function goBack(){const p=navHistory.pop();if(p)navTo(p.page,p.id,false);else navTo('feed',null,false)}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  const s=document.getElementById('scroll');
+  const {page,id}=route;
+  if(page==='feed') s.innerHTML=renderFeed();
+  else if(page==='events') s.innerHTML=renderEvents();
+  else if(page==='event') s.innerHTML=renderEvent(id);
+  else if(page==='communities') s.innerHTML=renderCommunities();
+  else if(page==='community') s.innerHTML=renderCommunity(id);
+  else if(page==='profile') s.innerHTML=renderProfile();
+}
+
+// ─── SVG IMAGE TAG ────────────────────────────────────────────────────────────
+function img(key,style=''){
+  return `<img src="${IMG[key]}" style="width:100%;height:100%;object-fit:cover;${style}" alt="">`;
+}
+
+// ─── FEED ─────────────────────────────────────────────────────────────────────
+function renderFeed(){
+  const myIds=[...joined];
+  const feedEvs=[...EVENTS.filter(e=>myIds.includes(e.cid)),...EVENTS.filter(e=>!myIds.includes(e.cid))].slice(0,6);
+  const feedMedia=[...mediaList.filter(m=>myIds.includes(m.cid)),...mediaList.filter(m=>!myIds.includes(m.cid))].slice(0,8);
+  return`<div class="scr">
+    <div style="padding:22px 16px 14px">
+      <div class="label" style="margin-bottom:6px">Social Media for Real Life</div>
+      <div class="h1">WHAT'S<br><span style="color:var(--red)">HAPPENING</span></div>
+    </div>
+    <div style="padding:0 16px 18px">
+      <div class="shead" style="margin-bottom:10px">FEATURED EVENT</div>
+      ${heroCard(EVENTS[0])}
+    </div>
+    <div style="padding:0 0 18px">
+      <div class="rowhead"><div class="shead">UPCOMING EVENTS</div><button class="seeall" onclick="navTo('events')">SEE ALL →</button></div>
+      <div style="display:flex;flex-direction:column;gap:8px;padding:0 16px">
+        ${feedEvs.map(evRow).join('')}
+      </div>
+    </div>
+    <div style="padding:0 0 18px">
+      <div class="rowhead"><div class="shead">SCENE MEDIA</div></div>
+      <div class="mgrid" style="padding:0 3px">
+        ${feedMedia.map(m=>`
+          <div class="mthumb" onclick="navTo('community','${m.cid}')">
+            ${img(m.id)}
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65),transparent 50%)"></div>
+            <div style="position:absolute;bottom:6px;left:7px;font-size:9px;color:rgba(255,255,255,.8);font-weight:700">@${m.author}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div style="padding:0 0 20px">
+      <div class="rowhead"><div class="shead">COMMUNITIES</div><button class="seeall" onclick="navTo('communities')">SEE ALL →</button></div>
+      <div class="hs">
+        ${COMMUNITIES.map(c=>{const isJ=joined.has(c.id);return`
+          <div class="cpill" onclick="navTo('community','${c.id}')">
+            <div class="cpill-img">${img(c.id)}<div style="position:absolute;inset:0;background:linear-gradient(135deg,${c.color}33,transparent)"></div></div>
+            <div style="padding:8px 10px 10px">
+              <div style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">${c.name}</div>
+              <div style="font-size:9px;color:var(--muted)">${c.members.toLocaleString()} members</div>
+              <button onclick="event.stopPropagation();doJoin('${c.id}')" style="margin-top:7px;width:100%;padding:5px 0;border-radius:6px;border:1px solid ${isJ?'#333':c.color};background:${isJ?'transparent':c.color+'18'};color:${isJ?'#555':c.color};font-family:var(--font-m);font-size:8px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase">
+                ${isJ?'✓ JOINED':'JOIN'}
+              </button>
+            </div>
+          </div>`;}).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function heroCard(ev){
+  const c=gc(ev.cid);const hasT=tickets.has(ev.id);
+  return`<div style="position:relative;height:240px;overflow:hidden;border-radius:16px;cursor:pointer" onclick="navTo('event','${ev.id}')">
+    ${img(ev.id)}
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.94) 0%,rgba(0,0,0,.15) 55%)"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:16px">
+      <span class="tag" style="background:${c.color}22;color:${c.color};border:1px solid ${c.color}44;margin-bottom:8px;display:inline-block">${c.name}</span>
+      <div style="font-family:var(--font-d);font-size:23px;letter-spacing:-1px;color:#fff;line-height:1.05;margin-top:4px">${ev.title}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px">
+        <span style="font-size:10px;color:rgba(255,255,255,.5)">${ev.date} · ${ev.loc}</span>
+        <span style="font-family:var(--font-d);font-size:18px;color:${hasT?'#00c9a7':'var(--red)'}">${hasT?'✓ GOING':price(ev.price)}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function evRow(ev){
+  const c=gc(ev.cid);const hasT=tickets.has(ev.id);
+  return`<div class="evrow" onclick="navTo('event','${ev.id}')">
+    <div style="width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0">${img(ev.id)}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.title}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">${ev.date}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-family:var(--font-d);font-size:14px;color:${hasT?'#00c9a7':c.color}">${hasT?'✓':price(ev.price)}</div>
+      <div style="font-size:9px;color:var(--muted)">${ev.going} going</div>
+    </div>
+  </div>`;
+}
+
+// ─── EVENTS ───────────────────────────────────────────────────────────────────
+function renderEvents(){
+  const evs=evFilter==='all'?EVENTS:EVENTS.filter(e=>e.cid===evFilter);
+  return`<div class="scr">
+    <div style="padding:22px 16px 14px">
+      <div class="label" style="margin-bottom:6px">Discover experiences</div>
+      <div class="h1">EVENTS</div>
+    </div>
+    <div class="hs" style="margin-bottom:14px">
+      ${[{id:'all',name:'ALL',color:'var(--red)'},...COMMUNITIES.map(c=>({id:c.id,name:c.name.split(' ')[0],color:c.color}))].map(f=>{
+        const a=evFilter===f.id;
+        return`<button class="pbtn" onclick="evFilter='${f.id}';render()" style="flex-shrink:0;color:${a?f.color:'var(--muted)'};border-color:${a?f.color:'var(--border)'};background:${a?f.color+'22':'transparent'}">${f.name}</button>`;
+      }).join('')}
+    </div>
+    <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+      ${evs.map(ev=>{
+        const c=gc(ev.cid);const hasT=tickets.has(ev.id);
+        return`<div class="card" style="cursor:pointer" onclick="navTo('event','${ev.id}')">
+          <div class="eimgw">${img(ev.id)}
+            <div class="eov"></div>
+            <div style="position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between">
+              <span class="tag" style="background:${c.color}22;color:${c.color};border:1px solid ${c.color}44">${c.name}</span>
+              <span class="tag" style="background:${hasT?'rgba(0,201,167,.15)':'rgba(255,45,85,.15)'};color:${hasT?'#00c9a7':'var(--red)'};border:1px solid ${hasT?'rgba(0,201,167,.3)':'rgba(255,45,85,.3)'}">${hasT?'✓ GOING':price(ev.price)}</span>
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 14px">
+              <div style="font-family:var(--font-d);font-size:17px;letter-spacing:-.4px;color:#fff;line-height:1.1;margin-bottom:4px">${ev.title}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.5)">${ev.date} · ${ev.loc}</div>
+            </div>
+          </div>
+          <div style="padding:10px 14px;display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:var(--sub)">${ev.going} attending</span>
+            <span style="font-size:10px;color:var(--muted)">${ev.cap-ev.going>0?ev.cap-ev.going+' spots left':'SOLD OUT'}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// ─── EVENT DETAIL ─────────────────────────────────────────────────────────────
+function renderEvent(id){
+  const ev=ge(id);if(!ev)return'';
+  const c=gc(ev.cid);const hasT=tickets.has(id);
+  const evMedia=mediaList.filter(m=>m.eid===id);
+  return`<div class="scr">
+    <div style="position:relative;height:260px;overflow:hidden">
+      ${img(ev.id)}
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--dark) 0%,rgba(0,0,0,.2) 55%)"></div>
+      <button class="back" onclick="goBack()">←</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px">
+        <span class="tag" style="background:${c.color}22;color:${c.color};border:1px solid ${c.color}44;display:inline-block;margin-bottom:8px">${c.name}</span>
+        <div style="font-family:var(--font-d);font-size:25px;letter-spacing:-1px;color:#fff;line-height:1.05">${ev.title}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:5px">${ev.date} · ${ev.loc}</div>
+      </div>
+    </div>
+    <div style="padding:16px">
+      <div class="sboxes">
+        <div class="sbox"><div class="sbox-n">${price(ev.price)}</div><div class="sbox-l">PRICE</div></div>
+        <div class="sbox"><div class="sbox-n">${ev.going}</div><div class="sbox-l">GOING</div></div>
+        <div class="sbox"><div class="sbox-n">${ev.cap-ev.going}</div><div class="sbox-l">SPOTS</div></div>
+      </div>
+      ${hasT
+        ?`<div class="confirmed">✓ YOU'RE GOING</div>`
+        :`<button class="rbtn" style="margin-bottom:16px" onclick="handleRSVP('${ev.id}')">${ev.price===0?'RSVP — FREE':'BUY TICKET · '+price(ev.price)}</button>`}
+      <div class="shead" style="margin-bottom:8px">ABOUT</div>
+      <p style="font-size:12px;color:var(--sub);line-height:1.75;margin-bottom:18px">${ev.desc}</p>
+      ${evMedia.length?`
+        <div class="shead" style="margin-bottom:10px">MEDIA FROM THIS EVENT</div>
+        <div class="mgrid" style="margin-bottom:16px">
+          ${evMedia.map(m=>`<div class="mthumb">${img(m.id)}</div>`).join('')}
+        </div>`:''}
+    </div>
+  </div>`;
+}
+
+// ─── COMMUNITIES ──────────────────────────────────────────────────────────────
+function renderCommunities(){
+  return`<div class="scr">
+    <div style="padding:22px 16px 14px">
+      <div class="label" style="margin-bottom:6px">Find your tribe</div>
+      <div class="h1">COMMU<br><span style="color:var(--red)">NITIES</span></div>
+    </div>
+    ${COMMUNITIES.map(c=>{const isJ=joined.has(c.id);return`
+      <div style="border-bottom:1px solid var(--border)">
+        <div style="position:relative;height:100px;overflow:hidden;cursor:pointer" onclick="navTo('community','${c.id}')">
+          ${img(c.id)}
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,${c.color}11,rgba(0,0,0,.65))"></div>
+        </div>
+        <div style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:var(--text);cursor:pointer" onclick="navTo('community','${c.id}')">${c.name}</div>
+            <div style="font-size:9px;color:${c.color};letter-spacing:2px;margin-top:2px">${c.tag}</div>
+            <p style="font-size:11px;color:var(--sub);margin-top:6px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${c.desc}</p>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-family:var(--font-d);font-size:18px;color:#fff">${c.members.toLocaleString()}</div>
+            <div style="font-size:8px;color:var(--muted);letter-spacing:1px">members</div>
+          </div>
+        </div>
+        <div style="padding:0 16px 14px">
+          <button onclick="doJoin('${c.id}')" style="width:100%;padding:9px 0;border-radius:9px;border:1px solid ${isJ?'#333':c.color};background:${isJ?'transparent':c.color+'18'};color:${isJ?'#555':c.color};font-family:var(--font-m);font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase">
+            ${isJ?'✓ JOINED':'JOIN COMMUNITY'}
+          </button>
+        </div>
+      </div>`;}).join('')}
+  </div>`;
+}
+
+// ─── COMMUNITY DETAIL ─────────────────────────────────────────────────────────
+function renderCommunity(id){
+  const c=gc(id);if(!c)return'';
+  const isJ=joined.has(id);
+  const commEvs=EVENTS.filter(e=>e.cid===id);
+  const commMedia=mediaList.filter(m=>m.cid===id);
+  let content='';
+  if(commTab==='feed'){
+    content=`<div style="padding:16px">
+      <div class="shead" style="margin-bottom:8px">ABOUT</div>
+      <p style="font-size:12px;color:var(--sub);line-height:1.75;margin-bottom:18px">${c.desc}</p>
+      <div class="shead" style="margin-bottom:10px">UPCOMING EVENTS</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">${commEvs.map(evRow).join('')}</div>
+      ${commMedia.length?`<div class="shead" style="margin-bottom:10px">RECENT MEDIA</div><div class="mgrid">${commMedia.slice(0,4).map(m=>`<div class="mthumb">${img(m.id)}</div>`).join('')}</div>`:''}
+    </div>`;
+  } else if(commTab==='events'){
+    content=`<div style="padding:16px;display:flex;flex-direction:column;gap:10px">${commEvs.map(ev=>{
+      const hasT=tickets.has(ev.id);
+      return`<div class="card" style="cursor:pointer" onclick="navTo('event','${ev.id}')">
+        <div class="eimgw">${img(ev.id)}<div class="eov"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 14px">
+            <div style="font-family:var(--font-d);font-size:16px;color:#fff">${ev.title}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5)">${ev.date} · ${ev.loc}</div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;display:flex;justify-content:space-between">
+          <span style="font-family:var(--font-d);font-size:16px;color:${hasT?'#00c9a7':c.color}">${hasT?'✓ GOING':price(ev.price)}</span>
+          <span style="font-size:9px;color:var(--muted)">${ev.going} going</span>
+        </div>
+      </div>`;}).join('')}</div>`;
+  } else if(commTab==='media'){
+    content=commMedia.length
+      ?`<div>${commMedia.map(m=>`
+          <div class="mpost">
+            <div class="mpost-img">${img(m.id)}</div>
+            <div style="padding:12px 16px 14px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+                <div class="av" style="width:26px;height:26px;font-size:10px">${m.author[0].toUpperCase()}</div>
+                <span style="font-size:11px;font-weight:700;color:var(--text)">@${m.author}</span>
+                ${m.eid?`<span style="font-size:9px;color:var(--red)">@ ${ge(m.eid)?.title||''}</span>`:''}
+                <span style="margin-left:auto;font-size:9px;color:var(--muted)">${m.time}</span>
+              </div>
+              <p style="font-size:12px;color:var(--sub);line-height:1.6">${m.caption}</p>
+            </div>
+          </div>`).join('')}</div>`
+      :`<div style="text-align:center;padding:48px 0;font-size:12px;color:var(--muted)">No media yet.${isJ?' Post the first one ↑':''}</div>`;
+  } else {
+    content=`<div style="padding:0 16px">${MEMBERS.map(m=>`
+      <div class="mrow">
+        <div class="av" style="width:34px;height:34px;font-size:13px;background:linear-gradient(135deg,${c.color},#7b61ff)">${m.n[0].toUpperCase()}</div>
+        <div style="flex:1;font-size:12px;font-weight:700;color:var(--text)">@${m.n}</div>
+        <div style="font-size:8px;color:var(--muted);letter-spacing:2px">${m.r}</div>
+      </div>`).join('')}</div>`;
+  }
+  return`<div class="scr">
+    <div style="position:relative;height:210px;overflow:hidden">
+      ${img(c.id,'opacity:.55')}
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,${c.color}22 0%,rgba(0,0,0,.92) 100%)"></div>
+      <button class="back" onclick="goBack()">←</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px">
+        <div style="font-size:9px;color:${c.color};letter-spacing:3px;margin-bottom:4px">${c.tag}</div>
+        <div style="font-family:var(--font-d);font-size:22px;color:#fff;letter-spacing:-.5px">${c.name}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:4px">👥 ${c.members.toLocaleString()} members · 📅 ${commEvs.length} events</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border)">
+      <button onclick="doJoin('${c.id}')" class="pbtn" style="flex:1;color:${isJ?'#555':c.color};border-color:${isJ?'#333':c.color};background:${isJ?'transparent':c.color+'22'}">${isJ?'✓ JOINED':'JOIN'}</button>
+      ${isJ?`<button onclick="openUploadSheet('${c.id}')" class="pbtn" style="flex:1;color:var(--sub);border-color:var(--border);background:transparent">+ POST MEDIA</button>`:''}
+    </div>
+    <div class="tabs">
+      ${['feed','events','media','members'].map(t=>`<button class="tab" onclick="commTab='${t}';render()" style="color:${commTab===t?c.color:'var(--muted)'};border-bottom-color:${commTab===t?c.color:'transparent'}">${t.toUpperCase()}</button>`).join('')}
+    </div>
+    ${content}
+  </div>`;
+}
+
+// ─── PROFILE ─────────────────────────────────────────────────────────────────
+function renderProfile(){
+  const myT=EVENTS.filter(e=>tickets.has(e.id));
+  const myC=COMMUNITIES.filter(c=>joined.has(c.id));
+  const myM=mediaList.filter(m=>m.author==='kaelen_v');
+  let content='';
+  if(profileTab==='tickets'){
+    content=myT.length
+      ?`<div style="padding:16px;display:flex;flex-direction:column;gap:10px">${myT.map(ev=>`
+          <div class="evrow" onclick="navTo('event','${ev.id}')">
+            <div style="width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0">${img(ev.id)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:700;color:var(--text)">${ev.title}</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">${ev.date}</div>
+              <div style="font-size:10px;color:var(--muted)">${ev.loc}</div>
+            </div>
+            <span class="tag" style="background:rgba(0,201,167,.1);color:#00c9a7;border:1px solid rgba(0,201,167,.25);align-self:flex-start">CONFIRMED</span>
+          </div>`).join('')}</div>`
+      :`<div style="text-align:center;padding:48px 0;font-size:12px;color:var(--muted)">No tickets yet. <span style="color:var(--red);cursor:pointer" onclick="navTo('events')">Browse events →</span></div>`;
+  } else if(profileTab==='communities'){
+    content=myC.length
+      ?`<div style="padding:16px;display:flex;flex-direction:column;gap:8px">${myC.map(c=>`
+          <div class="evrow" onclick="navTo('community','${c.id}')">
+            <div style="width:40px;height:40px;border-radius:10px;background:${c.color}22;border:1px solid ${c.color}44;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:16px;color:${c.color};flex-shrink:0">${c.name[0]}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
+              <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:2px">${c.tag}</div>
+            </div>
+            <span style="font-size:8px;color:var(--muted);letter-spacing:2px">MEMBER</span>
+          </div>`).join('')}</div>`
+      :`<div style="text-align:center;padding:48px 0;font-size:12px;color:var(--muted)">No communities joined yet.</div>`;
+  } else {
+    content=myM.length
+      ?`<div class="mgrid" style="padding:0 3px">${myM.map(m=>`<div class="mthumb">${img(m.id)}</div>`).join('')}</div>`
+      :`<div style="text-align:center;padding:48px 0;font-size:12px;color:var(--muted)">No media posted yet.</div>`;
+  }
+  return`<div class="scr">
+    <div class="phero">
+      <div class="pavlg">K</div>
+      <div style="font-family:var(--font-d);font-size:22px;color:#fff;letter-spacing:-.5px">KAELEN V</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">@kaelen_v</div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <span class="tag" style="background:rgba(255,45,85,.15);color:var(--red);border:1px solid rgba(255,45,85,.3)">ARTIST</span>
+        <span class="tag" style="background:rgba(255,45,85,.15);color:var(--red);border:1px solid rgba(255,45,85,.3)">CURATOR</span>
+      </div>
+      <p style="font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5">Designer · DJ · Building TRIB3.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,.07);padding-top:14px;margin-top:16px">
+        ${[['ATTENDING',myT.length],['COMMUNITIES',myC.length],['MEDIA',myM.length]].map(([l,v])=>`<div style="text-align:center"><div style="font-family:var(--font-d);font-size:22px;color:#fff">${v}</div><div style="font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:2px">${l}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="tabs">
+      ${['tickets','communities','media'].map(t=>`<button class="tab" onclick="profileTab='${t}';render()" style="color:${profileTab===t?'var(--red)':'var(--muted)'};border-bottom-color:${profileTab===t?'var(--red)':'transparent'}">${t.toUpperCase()}</button>`).join('')}
+    </div>
+    ${content}
+  </div>`;
+}
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────────
+function doJoin(id){
+  const was=joined.has(id);
+  joined.has(id)?joined.delete(id):joined.add(id);
+  showToast(was?`Left ${gc(id).name}`:`Joined ${gc(id).name}! 🎉`);
+  render();
+}
+
+function handleRSVP(evId){
+  const ev=ge(evId);
+  if(ev.price===0){tickets.add(evId);showToast("You're going! 🎉");render();return;}
+  openCheckoutSheet(evId);
+}
+
+function openCheckoutSheet(evId){
+  const ev=ge(evId);
+  const el=document.createElement('div');
+  el.className='overlay';el.id='checkout-overlay';
+  el.innerHTML=`<div class="sheet">
+    <div class="shandle"></div>
+    <div style="font-family:var(--font-d);font-size:18px;color:#fff;margin-bottom:14px">CHECKOUT</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--text)">${ev.title}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:3px">${ev.date}</div>
+      <div style="font-family:var(--font-d);font-size:20px;color:var(--red);margin-top:6px">${price(ev.price)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      <input class="inp" placeholder="Card number" maxlength="19">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input class="inp" placeholder="MM/YY" maxlength="5">
+        <input class="inp" placeholder="CVC" maxlength="3">
+      </div>
+    </div>
+    <button class="rbtn" id="pay-btn" onclick="processPayment('${evId}')">PAY ${price(ev.price)}</button>
+    <button class="gbtn" style="margin-top:8px" onclick="document.getElementById('checkout-overlay').remove()">CANCEL</button>
+  </div>`;
+  document.body.appendChild(el);
+}
+
+function processPayment(evId){
+  const btn=document.getElementById('pay-btn');
+  btn.textContent='PROCESSING...';btn.style.opacity='.6';
+  setTimeout(()=>{
+    document.getElementById('checkout-overlay')?.remove();
+    tickets.add(evId);showToast('Ticket confirmed! 🎟️');render();
+  },1500);
+}
+
+function openUploadSheet(cid){
+  const c=gc(cid);
+  const keys=['u1','u2','u3','u4','u5','u6'];
+  const el=document.createElement('div');
+  el.className='overlay';el.id='upload-overlay';
+  el.innerHTML=`<div class="sheet">
+    <div class="shandle"></div>
+    <div style="font-family:var(--font-d);font-size:16px;color:#fff;margin-bottom:14px">POST TO ${c.name}</div>
+    <div class="shead" style="margin-bottom:8px">CHOOSE PHOTO</div>
+    <div class="ugrid" id="ugrid" style="margin-bottom:14px">
+      ${keys.map(k=>`<div class="uthumb" id="ut-${k}" onclick="selectUploadThumb('${k}','${c.color}')"><img src="${IMG[k]}" style="width:100%;height:100%;object-fit:cover" alt=""></div>`).join('')}
+    </div>
+    <textarea class="inp" id="upload-cap" placeholder="Add a caption..." style="resize:none;min-height:60px;margin-bottom:12px"></textarea>
+    <button class="rbtn" id="post-btn" onclick="submitUpload('${cid}')" style="opacity:.4" disabled>POST</button>
+    <button class="gbtn" style="margin-top:8px" onclick="document.getElementById('upload-overlay').remove()">CANCEL</button>
+  </div>`;
+  document.body.appendChild(el);
+  selectedUpload=null;
+}
+
+function selectUploadThumb(key,color){
+  selectedUpload=key;
+  document.querySelectorAll('.uthumb').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('ut-'+key)?.classList.add('sel');
+  const btn=document.getElementById('post-btn');
+  btn.removeAttribute('disabled');btn.style.opacity='1';
+}
+
+function submitUpload(cid){
+  if(!selectedUpload)return;
+  const btn=document.getElementById('post-btn');
+  btn.textContent='POSTING...';btn.style.opacity='.6';
+  setTimeout(()=>{
+    const cap=document.getElementById('upload-cap')?.value||'New post from the studio.';
+    mediaList.unshift({id:selectedUpload,cid,eid:null,caption:cap,author:'kaelen_v',time:'just now'});
+    document.getElementById('upload-overlay')?.remove();
+    showToast('Media posted! 📸');render();
+  },900);
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.display='block';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.style.display='none',2600);
+}
+
+// ─── SHARE ────────────────────────────────────────────────────────────────────
+function openShare(){ document.getElementById('share-scr').style.display='flex'; }
+function dismissShare(){
+  document.getElementById('share-scr').style.display='none';
+  document.getElementById('app').style.display='flex';
+  commTab='feed';profileTab='tickets';evFilter='all';
+  render();
+}
+function copyUrl(){
+  const val=document.getElementById('url-in').value||window.location.href;
+  navigator.clipboard?.writeText(val).catch(()=>{});
+  showToast('URL copied! 📋');
+}
+document.getElementById('url-in').addEventListener('input',function(){
+  if(this.value.length>10){
+    const qb=document.getElementById('qr-box');
+    qb.innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=168x168&data=${encodeURIComponent(this.value)}&bgcolor=ffffff&color=08080f&margin=4" style="width:168px;height:168px">`;
+  }
+});
+</script>
+</body>
+</html>
