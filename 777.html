@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#050505"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>TRIB3 — Experiences · Community · Media</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&family=Barlow:wght@300;400;500;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ═══ RESET & TOKENS ═══ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --F-display:'Barlow Condensed',helvetica,arial,sans-serif;
+  --F-body:'Barlow',helvetica,arial,sans-serif;
+  --F-mono:'Space Mono',monospace;
+  --nav-h:60px;
+  --accent:255,255,255;
+  --vio:140,90,255;
+}
+@media(min-width:768px){:root{--nav-h:72px}}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-padding-top:var(--nav-h);-webkit-text-size-adjust:100%}
+body{background:#050505;color:#fff;font-family:var(--F-body);overflow-x:hidden;min-height:100vh;font-weight:400;-webkit-tap-highlight-color:transparent;padding-bottom:env(safe-area-inset-bottom)}
+::selection{background:rgba(140,90,255,.35);color:#fff}
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+input,textarea{font-family:var(--F-body)}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes fog-d{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(24px,-18px) scale(1.02)}70%{transform:translate(-16px,16px) scale(.98)}}
+@keyframes ring-cw{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes ring-ccw{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+@keyframes scroll-pulse{0%{transform:translateY(-100%);opacity:0}45%{opacity:1}100%{transform:translateY(150%);opacity:0}}
+@keyframes dot-pulse{0%,100%{opacity:.8;box-shadow:0 0 6px rgba(140,90,255,.5)}50%{opacity:.3;box-shadow:0 0 14px rgba(140,90,255,.7)}}
+@keyframes glow-rot{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes modal-in{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes hero-in{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes underline-in{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ═══ AMBIENT BG ═══ */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+.fog{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.fog-i{position:absolute;width:200vw;height:200vh;top:-50vh;left:-50vw;opacity:.16;animation:fog-d 35s ease-in-out infinite}
+.orb{position:absolute;border-radius:50%}
+.o1{top:18%;left:22%;width:55vw;height:55vw;background:radial-gradient(circle,rgba(80,30,160,.6),transparent 68%);filter:blur(180px)}
+.o2{bottom:10%;right:15%;width:45vw;height:45vw;background:radial-gradient(circle,rgba(20,40,130,.5),transparent 68%);filter:blur(160px)}
+.o3{top:50%;left:55%;width:30vw;height:30vw;background:radial-gradient(circle,rgba(60,15,110,.4),transparent 68%);filter:blur(120px)}
+.grain-svg{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.03;mix-blend-mode:overlay}
+.scanl{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.008;background:repeating-linear-gradient(0deg,transparent,transparent 1px,rgba(255,255,255,.06) 1px,rgba(255,255,255,.06) 2px)}
+.vig{position:fixed;inset:0;z-index:4;pointer-events:none;background:radial-gradient(ellipse 72% 72% at 50% 50%,transparent 48%,rgba(0,0,0,.72))}
+.csr{position:fixed;z-index:5;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(140,90,255,.07),transparent 70%);pointer-events:none;transition:left .1s ease-out,top .1s ease-out;display:none}
+@media(pointer:fine){.csr{display:block}}
+
+/* ═══ TICKER ═══ */
+.ticker-wrap{position:relative;z-index:10;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);overflow:hidden;height:36px;display:flex;align-items:center}
+.ticker-track{display:flex;white-space:nowrap;animation:ticker 28s linear infinite}
+.ticker-track span{font-family:var(--F-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.18);padding:0 32px}
+.ticker-track span.sep{color:rgba(255,255,255,.06)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;inset-inline:0;z-index:100;height:var(--nav-h);transition:background .5s,border-color .5s}
+nav.scrolled{background:rgba(5,5,5,.82);backdrop-filter:blur(32px) saturate(1.6);-webkit-backdrop-filter:blur(32px) saturate(1.6);border-bottom:1px solid rgba(255,255,255,.04)}
+.nav-i{max-width:1600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:100%}
+@media(min-width:768px){.nav-i{padding:0 40px}}
+.logo{font-family:var(--F-display);font-weight:900;font-size:1.4rem;letter-spacing:.25em;color:#fff;background:none;border:none;transition:opacity .3s;padding:0}
+.logo:hover{opacity:.7}
+.nav-links{display:none;align-items:center;gap:28px}
+@media(min-width:1024px){.nav-links{display:flex}}
+.nl{position:relative;font-family:var(--F-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;background:none;border:none;color:rgba(255,255,255,.5);transition:color .35s;padding:4px 0}
+.nl:hover{color:rgba(255,255,255,.85)}
+.nl.active{color:#fff}
+.nl.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:linear-gradient(to right,rgba(140,90,255,.8),rgba(80,120,255,.4),transparent);animation:underline-in .4s cubic-bezier(.22,1,.36,1) forwards}
+.nav-cta{margin-left:16px;padding:7px 18px;border-radius:3px;font-family:var(--F-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);transition:all .35s}
+.nav-cta:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.22)}
+.ham{display:flex;flex-direction:column;gap:5px;background:none;border:none;padding:6px}
+@media(min-width:1024px){.ham{display:none}}
+.hl{width:22px;height:1px;background:#fff;transition:all .4s cubic-bezier(.22,1,.36,1);transform-origin:center;display:block}
+.ham.open .hl:nth-child(1){transform:rotate(45deg) translate(0,6px)}
+.ham.open .hl:nth-child(2){opacity:0;transform:scaleX(0)}
+.ham.open .hl:nth-child(3){transform:rotate(-45deg) translate(0,-6px)}
+.mob-menu{position:fixed;inset:0;top:var(--nav-h);background:rgba(4,4,4,.98);backdrop-filter:blur(40px);z-index:90;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;opacity:0;pointer-events:none;transition:opacity .45s}
+.mob-menu.open{opacity:1;pointer-events:auto}
+.mob-item{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);opacity:0;transform:translateY(12px);transition:all .45s}
+.mob-menu.open .mob-item{opacity:1;transform:translateY(0)}
+.mob-n{font-family:var(--F-mono);font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.15);margin-right:18px}
+.mob-l{font-family:var(--F-display);font-size:2rem;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.45);background:none;border:none;transition:color .3s;padding:0}
+.mob-l:hover,.mob-l.active{color:#fff}
+
+/* ═══ LAYOUT ═══ */
+.wrap{position:relative;z-index:10}
+.sec{padding:96px 20px}
+@media(min-width:640px){.sec{padding:128px 32px}}
+@media(min-width:1024px){.sec{padding:160px 48px}}
+.ctr{max-width:1400px;margin:0 auto}
+.ctr-sm{max-width:1160px;margin:0 auto}
+.ctr-xs{max-width:500px;margin:0 auto}
+.sec-tag{font-family:var(--F-mono);font-size:10px;letter-spacing:.45em;text-transform:uppercase;color:rgba(255,255,255,.45);display:block}
+.sec-h{font-family:var(--F-display);font-weight:800;color:rgba(255,255,255,.95);line-height:.92;font-size:clamp(2.4rem,5.5vw,4rem);margin-top:20px;letter-spacing:.01em}
+.sec-h em{font-style:normal;color:rgba(255,255,255,.4)}
+.sd{position:relative;z-index:10;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.06) 30%,rgba(255,255,255,.06) 70%,transparent);margin:0 20px}
+
+/* ═══ REVEAL ═══ */
+.rv{opacity:0;transform:translateY(32px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+.rv.v{opacity:1;transform:translateY(0)}
+.rv[data-d="1"]{transition-delay:.1s}
+.rv[data-d="2"]{transition-delay:.2s}
+.rv[data-d="3"]{transition-delay:.3s}
+.rv[data-d="4"]{transition-delay:.4s}
+
+/* ═══ BUTTONS ═══ */
+.btn{display:inline-block;font-family:var(--F-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:12px 24px;border-radius:3px;transition:all .35s;border:1px solid}
+.btn-outline{background:transparent;border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.6)}
+.btn-outline:hover{border-color:rgba(255,255,255,.4);color:#fff;box-shadow:0 0 24px rgba(140,90,255,.1)}
+.btn-fill{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.75)}
+.btn-fill:hover{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.22)}
+.btn-sm{padding:8px 16px;font-size:9px}
+
+/* ═══ HERO ═══ */
+#hero{position:relative;z-index:10;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;padding:var(--nav-h) 20px 60px}
+.hero-ring{position:absolute;top:50%;left:50%;border-radius:50%;pointer-events:none;border:1px solid rgba(140,90,255,.08)}
+.r1{width:min(64vw,820px);height:min(64vw,820px);animation:ring-cw 42s linear infinite}
+.r2{width:min(42vw,560px);height:min(42vw,560px);border-color:rgba(140,90,255,.05);animation:ring-ccw 58s linear infinite}
+.hero-c{position:relative;z-index:1;text-align:center;max-width:960px;width:100%}
+.ht{font-family:var(--F-display);font-weight:900;font-size:clamp(5rem,19vw,17rem);line-height:.84;letter-spacing:-.01em;color:#fff;text-shadow:0 0 100px rgba(140,90,255,.2),0 0 200px rgba(80,120,255,.1);opacity:0;animation:hero-in 1.3s cubic-bezier(.16,1,.3,1) .3s forwards}
+.ht-sub{display:flex;justify-content:center;gap:20px;margin-top:24px;flex-wrap:wrap}
+@media(min-width:480px){.ht-sub{gap:32px}}
+.hs{font-family:var(--F-mono);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.55);opacity:0;animation:fade-up .8s ease forwards}
+.hero-p{margin-top:24px;font-family:var(--F-body);font-size:clamp(.88rem,1.8vw,1.05rem);font-weight:300;color:rgba(255,255,255,.5);letter-spacing:.04em;opacity:0;animation:fade-up .8s ease .85s forwards}
+.hero-btns{margin-top:40px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;opacity:0;animation:fade-up .8s ease 1.1s forwards}
+.scroll-cue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;color:inherit;opacity:0;animation:fade-up .8s ease 1.5s forwards}
+.scrl-t{font-family:var(--F-mono);font-size:8px;letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.15)}
+.scrl-l{width:1px;height:28px;overflow:hidden}
+.scrl-f{width:100%;height:100%;background:linear-gradient(to bottom,rgba(255,255,255,.3),transparent);animation:scroll-pulse 2.4s ease-in-out infinite}
+
+/* ═══ ABOUT ═══ */
+.about-g{display:grid;gap:48px;align-items:start}
+@media(min-width:1024px){.about-g{grid-template-columns:1fr .55fr;gap:80px}}
+.stat-c{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.stat{padding:18px 20px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.01);transition:all .45s}
+.stat:hover{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.025)}
+.sv{font-family:var(--F-display);font-weight:700;font-size:1.8rem;color:rgba(255,255,255,.78)}
+.ss{font-family:var(--F-mono);font-size:8px;letter-spacing:.22em;color:rgba(140,90,255,.5);margin-left:10px}
+.sl{font-family:var(--F-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-top:4px}
+.div-l{width:80px;height:1px;background:linear-gradient(to right,rgba(140,90,255,.6),transparent);margin:32px 0}
+.body-p{font-family:var(--F-body);font-size:.97rem;line-height:1.85;font-weight:400;color:rgba(255,255,255,.55);max-width:420px}
+
+/* ═══ PILLARS ═══ */
+.pill-list{display:flex;flex-direction:column;gap:10px;margin-top:56px}
+.pill{width:100%;text-align:left;border:1px solid;border-radius:2px;overflow:hidden;transition:all .55s;background:none;position:relative}
+.pill:hover{transform:translateY(-1px)}
+.pill-glow{position:absolute;inset:0;opacity:0;transition:opacity .55s;pointer-events:none}
+.pill:hover .pill-glow{opacity:1}
+.pill-i{position:relative;z-index:1;padding:22px 24px;display:flex;flex-direction:column;gap:12px}
+@media(min-width:768px){.pill-i{flex-direction:row;align-items:center;gap:40px;padding:32px 40px}}
+.pn{font-family:var(--F-mono);font-size:10px;letter-spacing:.38em;color:rgba(255,255,255,.35)}
+.pt{font-family:var(--F-display);font-size:clamp(1.7rem,3.5vw,2.6rem);font-weight:800;letter-spacing:.01em;color:rgba(255,255,255,.92);transition:color .45s}
+.pill:hover .pt{color:#fff}
+.pd{font-family:var(--F-body);font-size:.9rem;line-height:1.75;font-weight:400;color:rgba(255,255,255,.52);max-width:340px;transition:color .45s}
+.pill:hover .pd{color:rgba(255,255,255,.72)}
+.pill-r{margin-left:auto;display:flex;align-items:center;gap:20px;flex-shrink:0}
+.pv{font-family:var(--F-mono);font-size:9px;letter-spacing:.28em;color:rgba(255,255,255,.28);text-transform:uppercase;display:none}
+@media(min-width:768px){.pv{display:block}}
+.parr{width:30px;height:30px;border:1px solid rgba(255,255,255,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .45s}
+.pill:hover .parr{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.06)}
+.parr svg{width:12px;height:12px;stroke:rgba(255,255,255,.45);transition:all .35s;fill:none;stroke-width:2}
+.pill:hover .parr svg{stroke:#fff;transform:translateX(2px)}
+
+/* ═══ EVENTS ═══ */
+.tab-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:40px}
+.tab{font-family:var(--F-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:7px 14px;border:1px solid rgba(255,255,255,.12);background:none;color:rgba(255,255,255,.45);transition:all .3s;border-radius:2px}
+.tab:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.82)}
+.tab.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff}
+.evt-g{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:540px){.evt-g{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.evt-g{grid-template-columns:1fr 1fr 1fr}}
+/* FEATURED event card */
+.evt-feat{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.012);transition:all .5s;overflow:hidden;display:block;width:100%;text-align:left}
+.evt-feat:hover{border-color:rgba(255,255,255,.18);transform:translateY(-3px);box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.ef-thumb{aspect-ratio:3/2;position:relative;display:flex;align-items:center;justify-content:center}
+.ef-badge{position:absolute;top:12px;left:12px;font-family:var(--F-mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;padding:4px 10px;border:1px solid;backdrop-filter:blur(8px)}
+.b-up{border-color:rgba(100,200,140,.45);background:rgba(100,200,140,.1);color:rgba(140,235,180,.9)}
+.b-soo{border-color:rgba(255,190,60,.4);background:rgba(255,190,60,.1);color:rgba(255,215,90,.9)}
+.b-ps{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.55)}
+.ef-icon-wrap{width:52px;height:52px;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;transition:all .5s}
+.evt-feat:hover .ef-icon-wrap{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.06);transform:scale(1.1)}
+.ef-icon-wrap svg{width:22px;height:22px;stroke:rgba(255,255,255,.45);fill:none;stroke-width:1.5;transition:stroke .4s}
+.evt-feat:hover .ef-icon-wrap svg{stroke:rgba(255,255,255,.9)}
+.ef-body{padding:16px 18px}
+.ef-cat{font-family:var(--F-mono);font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:5px}
+.ef-title{font-family:var(--F-display);font-weight:700;font-size:1.3rem;letter-spacing:.01em;color:rgba(255,255,255,.92);margin-bottom:10px;line-height:1.1;transition:color .4s}
+.evt-feat:hover .ef-title{color:#fff}
+.ef-meta{display:flex;gap:14px;flex-wrap:wrap}
+.ef-m{font-family:var(--F-mono);font-size:8px;letter-spacing:.15em;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:5px}
+.ef-m svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:.7}
+.ef-foot{padding:10px 18px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07)}
+.ef-price{font-family:var(--F-display);font-weight:600;font-size:1rem;color:rgba(255,255,255,.72)}
+.ef-cta{font-family:var(--F-mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.45);transition:all .35s}
+.ef-cta:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25)}
+
+/* ═══ PORTFOLIO / WORK ═══ */
+.port-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(min-width:768px){.port-g{grid-template-columns:1fr 1fr 1fr;gap:12px}}
+.pc{overflow:hidden;border:1px solid rgba(255,255,255,.04);position:relative;cursor:pointer;transition:all .5s;background:none;padding:0;display:block;width:100%;text-align:left}
+.pc:hover{border-color:rgba(255,255,255,.14);transform:translateY(-2px)}
+.pc.lg{grid-column:span 2;grid-row:span 2}
+.pc.md{grid-row:span 2}
+.pc-img{width:100%;aspect-ratio:1;display:block;position:relative}
+.pc.lg .pc-img{aspect-ratio:4/3}
+.pc.md .pc-img{aspect-ratio:1/2}
+@media(min-width:768px){.pc.lg .pc-img,.pc.md .pc-img{height:100%;aspect-ratio:unset}}
+.pc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 50%);opacity:0;transition:opacity .5s;display:flex;align-items:flex-end;padding:16px}
+.pc:hover .pc-ov{opacity:1}
+.pc-cat{font-family:var(--F-mono);font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:3px}
+.pc-name{font-family:var(--F-display);font-weight:700;font-size:1.1rem;color:#fff;letter-spacing:.01em}
+.pc-gx{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:36px 36px;transition:opacity .5s}
+.pc:hover .pc-gx{opacity:.08}
+.port-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:all .5s}
+.pc:hover .port-icon{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);transform:translate(-50%,-50%) scale(1.15)}
+.port-icon svg{width:18px;height:18px;stroke:rgba(255,255,255,.2);fill:none;stroke-width:1;transition:stroke .4s}
+.pc:hover .port-icon svg{stroke:rgba(255,255,255,.7)}
+
+/* ═══ COMMUNITY ═══ */
+.comm-g{display:grid;gap:48px}
+@media(min-width:1024px){.comm-g{grid-template-columns:1fr 1fr;gap:64px}}
+.mem-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.04);background:none;width:100%;text-align:left;transition:all .4s}
+.mem-row:hover{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.014)}
+.mem-list-wrap{display:flex;flex-direction:column;gap:5px;max-height:520px;overflow-y:auto;padding-right:4px}
+.mem-list-wrap::-webkit-scrollbar{width:2px}
+.mem-list-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+.mem-av{width:34px;height:34px;border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-family:var(--F-mono);font-size:9px;color:rgba(255,255,255,.55);flex-shrink:0;font-weight:700}
+.mem-n{font-family:var(--F-body);font-size:.88rem;font-weight:500;color:rgba(255,255,255,.78);transition:color .35s}
+.mem-row:hover .mem-n{color:#fff}
+.mem-r{font-family:var(--F-mono);font-size:8px;letter-spacing:.14em;color:rgba(255,255,255,.38);margin-top:2px}
+.mem-c{font-family:var(--F-mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-left:auto;flex-shrink:0}
+/* featured communities */
+.fc-g{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:640px){.fc-g{grid-template-columns:1fr 1fr}}
+.fc{padding:18px 20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.015);transition:all .45s;cursor:pointer;text-align:left;display:block;width:100%}
+.fc:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.03);transform:translateY(-1px)}
+.fc-ico{font-size:1.4rem;margin-bottom:12px;display:block}
+.fc-n{font-family:var(--F-display);font-weight:700;font-size:1rem;letter-spacing:.02em;color:rgba(255,255,255,.88);margin-bottom:5px;transition:color .35s}
+.fc:hover .fc-n{color:#fff}
+.fc-d{font-family:var(--F-body);font-size:.82rem;font-weight:400;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:10px}
+.fc-cnt{font-family:var(--F-mono);font-size:8px;letter-spacing:.22em;color:rgba(140,90,255,.7)}
+.sub-hd{font-family:var(--F-mono);font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:14px;margin-top:36px;display:block}
+
+/* ═══ MEDIA LIBRARY ═══ */
+.media-tabs{display:flex;gap:6px;margin-bottom:36px;flex-wrap:wrap}
+/* PHOTO GRID */
+.photo-g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(min-width:768px){.photo-g{grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}}
+.ph{border:1px solid rgba(255,255,255,.04);overflow:hidden;cursor:pointer;transition:all .45s;position:relative}
+.ph:hover{border-color:rgba(255,255,255,.14);transform:scale(1.02)}
+.ph.t2{grid-row:span 2}
+.ph.w2{grid-column:span 2}
+.ph-inner{aspect-ratio:1;position:relative}
+.ph.t2 .ph-inner{aspect-ratio:1/2.08}
+.ph.w2 .ph-inner{aspect-ratio:2/1}
+.ph-hover{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;transition:opacity .4s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.ph:hover .ph-hover{opacity:1}
+.ph-eye{width:32px;height:32px;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+.ph-eye svg{width:14px;height:14px;stroke:rgba(255,255,255,.7);fill:none;stroke-width:1.5}
+.ph-lbl{font-family:var(--F-mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+/* EVENT name tag */
+.ph-evtag{position:absolute;bottom:8px;left:8px;font-family:var(--F-mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase;background:rgba(0,0,0,.8);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.6);padding:3px 8px;backdrop-filter:blur(8px)}
+.ph-cs{position:absolute;top:10px;right:10px;font-family:var(--F-mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.45);padding:3px 8px;backdrop-filter:blur(8px);pointer-events:none}
+.vc-cs{position:absolute;top:10px;right:10px;font-family:var(--F-mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.45);padding:3px 8px;backdrop-filter:blur(8px);pointer-events:none}
+/* VIDEO GRID */
+.vid-g{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:640px){.vid-g{grid-template-columns:1fr 1fr}}
+.vc{border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.008);overflow:hidden;cursor:pointer;transition:all .5s}
+.vc:hover{border-color:rgba(255,255,255,.14);transform:translateY(-3px);box-shadow:0 20px 56px rgba(0,0,0,.55)}
+.vc-thumb{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;position:relative}
+.play{width:48px;height:48px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;transition:all .5s}
+.vc:hover .play{background:rgba(255,255,255,.16);transform:scale(1.12);border-color:rgba(255,255,255,.35)}
+.play svg{width:16px;height:16px;fill:rgba(255,255,255,.6);margin-left:3px;transition:fill .4s}
+.vc:hover .play svg{fill:#fff}
+.vc-scan{position:absolute;inset:0;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px);transition:opacity .5s}
+.vc:hover .vc-scan{opacity:1}
+.vc-info{padding:14px 16px 18px}
+.vc-type{font-family:var(--F-mono);font-size:7px;letter-spacing:.25em;text-transform:uppercase;border:1px solid rgba(255,255,255,.14);padding:3px 8px;color:rgba(255,255,255,.5);display:inline-block;margin-bottom:8px}
+.vc-t{font-family:var(--F-display);font-weight:700;font-size:1.1rem;letter-spacing:.01em;color:rgba(255,255,255,.88);margin-bottom:4px;transition:color .4s}
+.vc:hover .vc-t{color:#fff}
+.vc-d{font-family:var(--F-mono);font-size:8px;letter-spacing:.15em;color:rgba(255,255,255,.4)}
+/* ARTICLES */
+.art-l{display:flex;flex-direction:column;gap:1px}
+.ar{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid rgba(255,255,255,.07);background:none;width:100%;text-align:left;transition:all .4s}
+.ar:hover{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.16)}
+.ar-n{font-family:var(--F-mono);font-size:9px;color:rgba(255,255,255,.32);flex-shrink:0;width:22px}
+.ar-ty{font-family:var(--F-mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgba(255,255,255,.14);padding:2px 7px;color:rgba(255,255,255,.5);flex-shrink:0}
+.ar-t{font-family:var(--F-body);font-size:.88rem;font-weight:400;color:rgba(255,255,255,.72);flex:1;transition:color .35s}
+.ar:hover .ar-t{color:#fff}
+.ar-d{font-family:var(--F-mono);font-size:8px;color:rgba(255,255,255,.35);margin-left:auto;flex-shrink:0}
+.ar-arr{width:22px;height:22px;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .35s}
+.ar:hover .ar-arr{border-color:rgba(255,255,255,.35)}
+.ar-arr svg{width:10px;height:10px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:2;transition:stroke .3s}
+.ar:hover .ar-arr svg{stroke:#fff}
+
+/* ═══ TRIB3 OS ═══ */
+.os-shell{position:relative;border:1px solid rgba(255,255,255,.05)}
+.os-glow{position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(140,90,255,.2),rgba(60,100,255,.15),rgba(120,60,200,.18),rgba(40,80,220,.14));background-size:300% 300%;animation:glow-rot 7s ease infinite;opacity:.5;pointer-events:none}
+.os-in{position:relative;background:rgba(5,5,5,.75);backdrop-filter:blur(40px);padding:36px 24px}
+@media(min-width:768px){.os-in{padding:72px}}
+.os-badge{display:inline-flex;align-items:center;gap:9px;padding:5px 14px;border:1px solid rgba(140,90,255,.2);background:rgba(140,90,255,.06);margin-bottom:28px}
+.os-badge-dot{width:5px;height:5px;border-radius:50%;background:rgba(140,90,255,.8);animation:dot-pulse 2.8s ease-in-out infinite}
+.os-badge-t{font-family:var(--F-mono);font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:rgba(140,90,255,.8)}
+.os-title{font-family:var(--F-display);font-weight:900;font-size:clamp(3rem,7vw,6rem);color:#fff;line-height:.88;letter-spacing:-.01em;margin-bottom:16px}
+.os-desc{font-family:var(--F-body);font-size:1rem;font-weight:400;color:rgba(255,255,255,.55);line-height:1.75;max-width:440px;margin-bottom:48px}
+/* fake UI */
+.fui{border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.008);overflow:hidden}
+.fui-tb{display:flex;align-items:center;gap:5px;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.fui-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.08)}
+.fui-bar{margin-left:10px;height:10px;width:96px;background:rgba(255,255,255,.03);border-radius:2px}
+.fui-body{padding:16px;display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:560px){.fui-body{grid-template-columns:.8fr 3fr}}
+.fui-sb{display:none}
+@media(min-width:560px){.fui-sb{display:block}}
+.fui-si{height:9px;background:rgba(255,255,255,.03);border-radius:1px;margin-bottom:7px}
+.fui-si.a{background:rgba(140,90,255,.14)}
+.fui-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.fui-stat{border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.015);padding:9px 10px}
+.fss-l{font-family:var(--F-mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.18)}
+.fss-v{font-family:var(--F-display);font-weight:700;font-size:.95rem;color:rgba(255,255,255,.5);display:flex;align-items:baseline;gap:5px;margin-top:3px}
+.fss-g{font-family:var(--F-mono);font-size:7px;color:rgba(80,200,120,.4)}
+.fui-chart{border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.008);padding:12px;height:80px;display:flex;align-items:flex-end;gap:3px}
+.fui-bar2{flex:1;background:linear-gradient(to top,rgba(140,90,255,.3),rgba(80,120,255,.12));border-radius:1px 1px 0 0}
+.os-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:36px}
+
+/* ═══ LEAD CAPTURE ═══ */
+.form-box{border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01);padding:32px 24px}
+@media(min-width:640px){.form-box{padding:44px}}
+.steps{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:32px}
+.std{width:22px;height:22px;border:1px solid;display:flex;align-items:center;justify-content:center;font-family:var(--F-mono);font-size:8px;letter-spacing:.1em;transition:all .45s}
+.std.on{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
+.std.off{border-color:rgba(255,255,255,.08);color:rgba(255,255,255,.2)}
+.stc{width:28px;height:1px;transition:background .45s}
+.stc.on{background:rgba(255,255,255,.22)}
+.stc.off{background:rgba(255,255,255,.06)}
+.fi{width:100%;padding:13px 18px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);color:#fff;font-size:.9rem;font-weight:300;outline:none;transition:all .4s;margin-bottom:10px;display:block;border-radius:1px}
+.fi:focus{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.04);box-shadow:0 0 18px rgba(140,90,255,.07)}
+.fi::placeholder{color:rgba(255,255,255,.32)}
+.int-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-bottom:18px}
+.ic{font-family:var(--F-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:8px 14px;border:1px solid rgba(255,255,255,.12);background:none;color:rgba(255,255,255,.48);transition:all .3s}
+.ic:hover{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.78)}
+.ic.s{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff}
+.chk-row{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:22px;cursor:pointer}
+.chk{width:14px;height:14px;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.chk.on{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35)}
+.chk-lbl{font-family:var(--F-body);font-size:.82rem;font-weight:400;color:rgba(255,255,255,.52)}
+.fnote{font-family:var(--F-mono);font-size:8px;letter-spacing:.15em;color:rgba(255,255,255,.22);text-align:center;margin-top:12px}
+.btn-main{width:100%;padding:14px;font-family:var(--F-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;border:1px solid;transition:all .4s;margin-top:4px}
+.btn-main.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.78)}
+.btn-main.on:hover{background:rgba(255,255,255,.16);color:#fff;box-shadow:0 0 28px rgba(140,90,255,.1)}
+.btn-main.off{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.04);color:rgba(255,255,255,.2);cursor:not-allowed}
+.suc{padding:48px 20px;text-align:center}
+.suc-ico{width:52px;height:52px;border:1px solid rgba(80,200,140,.25);background:rgba(80,200,140,.07);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.suc-ico svg{width:22px;height:22px;stroke:rgba(100,220,160,.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.suc-h{font-family:var(--F-display);font-weight:700;font-size:1.6rem;color:rgba(255,255,255,.85);margin-bottom:8px}
+.suc-p{font-family:var(--F-body);font-size:.88rem;font-weight:300;color:rgba(255,255,255,.28);margin-bottom:28px}
+
+/* ═══ FOOTER ═══ */
+footer{position:relative;z-index:10;border-top:1px solid rgba(255,255,255,.04)}
+.ft{max-width:1400px;margin:0 auto;padding:48px 20px 40px}
+@media(min-width:768px){.ft{padding:56px 40px 44px}}
+.ft-g{display:grid;gap:28px}
+@media(min-width:768px){.ft-g{grid-template-columns:1fr 1fr 1fr}}
+.ft-logo{font-family:var(--F-display);font-weight:900;font-size:1.2rem;letter-spacing:.25em;color:rgba(255,255,255,.85);background:none;border:none;transition:opacity .3s;padding:0}
+.ft-logo:hover{opacity:.6}
+.ft-tl{font-family:var(--F-mono);font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.28);margin-top:7px}
+.ft-links{display:grid;grid-template-columns:1fr 1fr;gap:7px 24px}
+.ftl{font-family:var(--F-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.38);background:none;border:none;text-align:left;transition:color .3s;padding:2px 0}
+.ftl:hover{color:rgba(255,255,255,.75)}
+.ft-soc{display:flex;gap:18px;flex-wrap:wrap}
+@media(min-width:768px){.ft-soc{justify-content:flex-end;flex-direction:column;align-items:flex-end;gap:10px}}
+.fts{font-family:var(--F-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);transition:color .3s}
+.fts:hover{color:rgba(255,255,255,.7)}
+.ft-bot{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;gap:4px}
+@media(min-width:640px){.ft-bot{flex-direction:row;justify-content:space-between;align-items:center}}
+.ft-c{font-family:var(--F-mono);font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.2)}
+
+/* ═══ LIGHTBOX ═══ */
+.lb{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:14px;opacity:0;pointer-events:none;transition:opacity .4s}
+.lb.open{opacity:1;pointer-events:auto}
+.lb-bg{position:absolute;inset:0;background:rgba(0,0,0,.93);backdrop-filter:blur(24px)}
+.lb-p{position:relative;width:100%;max-width:680px;border:1px solid rgba(255,255,255,.08);background:rgba(8,8,8,.95);overflow:hidden;animation:modal-in .4s cubic-bezier(.22,1,.36,1)}
+.lb-img-z{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+.lb-body{padding:22px 26px 26px}
+.lb-cat{font-family:var(--F-mono);font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:7px}
+.lb-title{font-family:var(--F-display);font-weight:800;font-size:1.6rem;letter-spacing:.01em;color:#fff;margin-bottom:18px}
+.lb-acts{display:flex;gap:8px;flex-wrap:wrap}
+.lb-x{position:absolute;top:12px;right:12px;width:30px;height:30px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;z-index:1}
+.lb-x:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.06)}
+.lb-x svg{width:12px;height:12px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:2;transition:stroke .3s}
+.lb-x:hover svg{stroke:#fff}
+
+/* ═══ HIDDEN ═══ */
+.h{display:none!important}
+
+/* ═══ RESP HELPERS ═══ */
+
+/* Nav letter-spacing tighten on small desktop */
+@media(max-width:1200px){
+  .nav-links{gap:20px}
+  .nl{font-size:9px;letter-spacing:.12em}
+}
+
+/* Touch targets — all tappable elements */
+@media(max-width:1023px){
+  .tab{min-height:40px;padding:8px 14px}
+  .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .ef-cta{min-height:36px}
+  .fc{min-height:44px}
+  .mem-row{min-height:52px}
+}
+
+/* Tablet */
+@media(max-width:900px){
+  .comm-g{grid-template-columns:1fr}
+  .fc-g{grid-template-columns:1fr 1fr}
+  .photo-g{grid-template-columns:1fr 1fr 1fr}
+  .vid-g{grid-template-columns:1fr 1fr}
+}
+
+/* Mobile landscape / large phone */
+@media(max-width:767px){
+  .sec{padding:80px 20px}
+  .sec-h{font-size:clamp(2rem,8vw,3.2rem);letter-spacing:.01em;line-height:.95}
+  .ht{font-size:clamp(5.5rem,20vw,10rem)}
+  .ht-sub{gap:14px}
+  .hs{font-size:9px;letter-spacing:.28em}
+  .pill-i{flex-direction:column;gap:10px;padding:22px 20px}
+  .pill-r{margin-left:0}
+  .pv{display:none}
+  .pd{font-size:.84rem}
+  .evt-g{grid-template-columns:1fr 1fr}
+  .photo-g{grid-template-columns:1fr 1fr;gap:6px}
+  .vid-g{grid-template-columns:1fr}
+  .comm-g{grid-template-columns:1fr;gap:36px}
+  .fc-g{grid-template-columns:1fr 1fr}
+  .about-g{grid-template-columns:1fr!important}
+  .lb{padding:0;align-items:flex-end}
+  .lb-p{max-width:100%;border-left:none;border-right:none;border-bottom:none;border-radius:0}
+  .lb-img-z{aspect-ratio:16/9}
+  .lb-body{padding:18px 20px 32px}
+  .lb-title{font-size:1.2rem}
+  .ft-g{grid-template-columns:1fr}
+  .ft-soc{flex-direction:row;justify-content:flex-start;gap:20px}
+  .form-box{padding:28px 20px}
+  #rsvpBanner{flex-direction:column;align-items:flex-start;gap:12px}
+  #rsvpBanner button{width:100%;text-align:center}
+  .os-in{padding:32px 20px}
+  .fui-sb{display:none!important}
+  .fui-body{grid-template-columns:1fr!important}
+  .mem-list-wrap{max-height:380px}
+}
+
+/* Small phone */
+@media(max-width:479px){
+  .sec{padding:64px 16px}
+  .sec-h{font-size:clamp(1.8rem,7vw,2.6rem);line-height:.96}
+  .ht{font-size:clamp(4.8rem,22vw,8rem)}
+  .ht-sub{gap:10px}
+  .hs{font-size:8px;letter-spacing:.22em}
+  .hero-btns{flex-direction:column;align-items:center;gap:8px}
+  .hero-btns .btn{width:100%;max-width:280px;justify-content:center}
+  .tab-bar{gap:5px}
+  .tab{font-size:8px;padding:7px 10px;letter-spacing:.12em}
+  .evt-g{grid-template-columns:1fr}
+  .photo-g{grid-template-columns:1fr 1fr;gap:5px}
+  .ph.t2{grid-row:span 1}
+  .ph.t2 .ph-inner{aspect-ratio:1}
+  .ph.w2{grid-column:span 1}
+  .ph.w2 .ph-inner{aspect-ratio:1}
+  .fc-g{grid-template-columns:1fr}
+  .os-title{font-size:clamp(2.2rem,10vw,4rem)}
+  .fui-stats{grid-template-columns:1fr 1fr}
+  .fui-stat:last-child{grid-column:span 2}
+  .lb-title{font-size:1.1rem}
+  .lb-acts{flex-direction:column}
+  .lb-acts .btn{width:100%;justify-content:center}
+  .ft-g{gap:24px}
+  .mob-l{font-size:1.7rem}
+  .form-box{padding:24px 16px}
+  .mem-list-wrap{max-height:320px}
+}
+
+/* Prevent x-overflow */
+@media(max-width:767px){
+  .hero-ring{display:none}
+  .orb{filter:blur(120px)}
+}
+</style>
+</head>
+<body>
+
+<!-- CANVAS -->
+<canvas id="cvs"></canvas>
+
+<!-- AMBIENT -->
+<div class="fog"><div class="fog-i"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div></div>
+<svg class="grain-svg" width="100%" height="100%"><filter id="gn"><feTurbulence baseFrequency=".75" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#gn)"/></svg>
+<div class="scanl"></div>
+<div class="vig"></div>
+<div class="csr" id="csr"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-i">
+    <button class="logo" onclick="gt('hero')">TRIB3</button>
+    <div class="nav-links">
+      <button class="nl" data-s="experiences" onclick="gt('experiences')">EXPERIENCES</button>
+      <button class="nl" data-s="community" onclick="gt('community')">COMMUNITY</button>
+      <button class="nl" data-s="media" onclick="gt('media')">MEDIA</button>
+      <button class="nav-cta" onclick="gt('access')">ENTER</button>
+    </div>
+    <button class="ham" id="ham" onclick="toggleMob()"><span class="hl"></span><span class="hl"></span><span class="hl"></span></button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mob">
+  <div class="mob-item" style="transition-delay:.04s"><span class="mob-n">01</span><button class="mob-l" onclick="gt('experiences')">EXPERIENCES</button></div>
+  <div class="mob-item" style="transition-delay:.09s"><span class="mob-n">02</span><button class="mob-l" onclick="gt('community')">COMMUNITY</button></div>
+  <div class="mob-item" style="transition-delay:.13s"><span class="mob-n">03</span><button class="mob-l" onclick="gt('media')">MEDIA</button></div>
+  <div class="mob-item" style="transition-delay:.17s"><span class="mob-n">04</span><button class="mob-l" onclick="gt('os')">OS</button></div>
+  <div class="mob-item" style="transition-delay:.21s"><span class="mob-n">05</span><button class="mob-l" onclick="gt('access')">ACCESS</button></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="closeLb(event)">
+  <div class="lb-bg"></div>
+  <div class="lb-p" onclick="event.stopPropagation()">
+    <div class="lb-img-z" id="lbImg"></div>
+    <div class="lb-body">
+      <p class="lb-cat" id="lbCat"></p>
+      <h3 class="lb-title" id="lbTitle"></h3>
+      <p id="lbDesc" style="font-family:var(--F-body);font-size:.88rem;font-weight:300;color:rgba(255,255,255,.3);line-height:1.65;margin-bottom:18px"></p>
+      <div class="lb-acts" id="lbActs"></div>
+    </div>
+    <button class="lb-x" onclick="closeLb()"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- TICKER -->
+<div class="ticker-wrap" style="margin-top:var(--nav-h)">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero" style="padding-top:0;margin-top:0;padding-bottom:max(60px,env(safe-area-inset-bottom,60px))">
+  <div class="hero-ring r1"></div>
+  <div class="hero-ring r2"></div>
+  <div class="hero-c">
+    <h1 class="ht">TRIB3</h1>
+    <div class="ht-sub">
+      <span class="hs" style="animation-delay:.55s">EXPERIENCES</span>
+      <span class="hs" style="animation-delay:.7s;color:rgba(255,255,255,.12)">·</span>
+      <span class="hs" style="animation-delay:.75s">COMMUNITY</span>
+      <span class="hs" style="animation-delay:.9s;color:rgba(255,255,255,.12)">·</span>
+      <span class="hs" style="animation-delay:.95s">MEDIA</span>
+    </div>
+    <p class="hero-p">Building the infrastructure for culture.</p>
+    <div class="hero-btns">
+      <button class="btn btn-outline" onclick="gt('experiences')">Explore Events</button>
+      <button class="btn btn-fill" onclick="gt('access')">Join TRIB3</button>
+    </div>
+  </div>
+  <button class="scroll-cue" onclick="gt('about')">
+    <span class="scrl-t">Scroll</span>
+    <div class="scrl-l"><div class="scrl-f"></div></div>
+  </button>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="sec">
+  <div class="ctr-sm">
+    <div class="about-g" style="grid-template-columns:1fr;max-width:760px">
+      <div>
+        <h2 class="sec-h rv" style="margin-top:0">We design<br>experiences that<br><em>become culture.</em></h2>
+        <div class="div-l rv" data-d="2"></div>
+        <p class="body-p rv" data-d="2">TRIB3 is a venture collective and cultural platform. We don't follow culture — we build the infrastructure that lets it emerge. From immersive events to curated communities and media that moves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ PILLARS — 3 nav cards ═══ -->
+<section id="pillars" class="sec" style="padding-top:0">
+  <div class="ctr">
+    <div class="pill-list">
+      <div class="rv" data-d="1">
+        <button class="pill" style="border-color:rgba(180,80,255,.14);background:linear-gradient(135deg,rgba(180,80,255,.12),transparent 65%)" onclick="setEvtFilter('all');gt('experiences')">
+          <div class="pill-glow" style="background:radial-gradient(ellipse at 30% 50%,rgba(180,80,255,.14),transparent 60%)"></div>
+          <div class="pill-i">
+            <span class="pn">01</span>
+            <h3 class="pt">Experiences</h3>
+            <p class="pd">We produce events that move people — Cars & Sounds, House Bl3nd, Pickleball Party, and intimate gatherings that blur the line between culture and community.</p>
+            <div class="pill-r"><span class="pv">Energetic · Visceral</span><div class="parr"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div></div>
+          </div>
+        </button>
+      </div>
+      <div class="rv" data-d="2">
+        <button class="pill" style="border-color:rgba(80,120,255,.12);background:linear-gradient(135deg,rgba(80,120,255,.1),transparent 65%)" onclick="gt('community')">
+          <div class="pill-glow" style="background:radial-gradient(ellipse at 30% 50%,rgba(80,120,255,.12),transparent 60%)"></div>
+          <div class="pill-i">
+            <span class="pn">02</span>
+            <h3 class="pt">Community</h3>
+            <p class="pd">TRIB3 is a network of people who show up — runners, selectors, creatives, builders, and athletes connected across cities through shared passion and purpose.</p>
+            <div class="pill-r"><span class="pv">Connected · Intimate</span><div class="parr"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div></div>
+          </div>
+        </button>
+      </div>
+      <div class="rv" data-d="3">
+        <button class="pill" style="border-color:rgba(140,90,255,.1);background:linear-gradient(135deg,rgba(140,90,255,.1),transparent 65%)" onclick="setMediaTab('photos');gt('media')">
+          <div class="pill-glow" style="background:radial-gradient(ellipse at 30% 50%,rgba(140,90,255,.12),transparent 60%)"></div>
+          <div class="pill-i">
+            <span class="pn">03</span>
+            <h3 class="pt">Media</h3>
+            <p class="pd">Every event, every run, every moment — captured and told. TRIB3 Media is the archive and the amplifier of everything this collective builds.</p>
+            <div class="pill-r"><span class="pv">Dynamic · Sharp</span><div class="parr"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div></div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ EXPERIENCES / EVENTS ═══ -->
+<section id="experiences" class="sec">
+  <div class="ctr">
+    <span class="sec-tag rv">01 — EXPERIENCES</span>
+    <h2 class="sec-h rv" data-d="1">EVENTS THAT<br><em>DEFINE MOMENTS.</em></h2>
+    <div class="rv" data-d="2" style="margin-top:44px">
+      <div class="tab-bar" id="evtTabs">
+        <button class="tab on" onclick="setEvtFilter('all',this)">All</button>
+        <button class="tab" onclick="setEvtFilter('upcoming',this)">Upcoming</button>
+        <button class="tab" onclick="setEvtFilter('past',this)">Past</button>
+        <button class="tab" onclick="setEvtFilter('cars',this)">Cars & Sounds</button>
+        <button class="tab" onclick="setEvtFilter('music',this)">House Bl3nd</button>
+        <button class="tab" onclick="setEvtFilter('sport',this)">Pickleball Party</button>
+        <button class="tab" onclick="setEvtFilter('gathering',this)">Gatherings</button>
+      </div>
+    </div>
+    <div class="evt-g" id="evtGrid"></div>
+  </div>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ COMMUNITY ═══ -->
+<section id="community" class="sec">
+  <div class="ctr-sm">
+    <div class="comm-g">
+      <div>
+        <span class="sec-tag rv">02 — COMMUNITY</span>
+        <h2 class="sec-h rv" data-d="1">BUILT BY<br><em>COMMUNITY.</em></h2>
+        <p class="body-p rv" data-d="2" style="margin-top:22px">A curated network of creators, athletes, operators, and visionaries collaborating across disciplines and borders.</p>
+        <button class="btn btn-fill rv" data-d="3" style="margin-top:28px" onclick="gt('access')">Join Network</button>
+
+        <span class="sub-hd rv" data-d="3">Featured Communities</span>
+        <div class="fc-g" id="fcGrid"></div>
+      </div>
+      <div>
+        <span class="sub-hd rv">Members</span>
+        <div id="memList" class="mem-list-wrap rv" data-d="1"></div>
+        <button style="width:100%;margin-top:8px;padding:12px;border:1px dashed rgba(255,255,255,.06);font-family:var(--F-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);background:none;transition:all .4s" onmouseover="this.style.borderColor='rgba(255,255,255,.16)';this.style.color='rgba(255,255,255,.45)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.18)'" onclick="gt('access')">+ Apply to Join</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ MEDIA LIBRARY ═══ -->
+<section id="media" class="sec">
+  <div class="ctr">
+    <span class="sec-tag rv">03 — MEDIA</span>
+    <h2 class="sec-h rv" data-d="1">STORIES WORTH<br><em>TELLING.</em></h2>
+    <div class="rv" data-d="2" style="margin-top:44px">
+      <div class="media-tabs tab-bar" id="mediaTabs">
+        <button class="tab on" onclick="setMediaTab('photos',this)">Photos</button>
+        <button class="tab" onclick="setMediaTab('videos',this)">Videos</button>
+        <button class="tab" onclick="setMediaTab('articles',this)">Articles</button>
+      </div>
+    </div>
+    <div id="mediaContent"></div>
+    <div class="rv" style="margin-top:32px;text-align:center">
+      <a href="https://instagram.com/trib3.exp" target="_blank" rel="noopener" class="btn btn-outline" style="text-decoration:none">Subscribe to Media</a>
+    </div>
+  </div>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ TRIB3 OS ═══ -->
+<section id="os" class="sec">
+  <div class="ctr" style="max-width:1060px">
+    <div class="rv">
+      <div class="os-shell">
+        <div class="os-glow"></div>
+        <div class="os-in">
+    <span class="sec-tag rv">005 — OS</span>
+          <div class="os-badge" style="margin-top:24px"><div class="os-badge-dot"></div><span class="os-badge-t">Coming Soon</span></div>
+          <h2 class="os-title">TRIB3 OS</h2>
+          <p class="os-desc">An operating system for culture. One dashboard for events, audiences, content, and community revenue.</p>
+          <div class="fui">
+            <div class="fui-tb"><div class="fui-dot"></div><div class="fui-dot"></div><div class="fui-dot"></div><div class="fui-bar"></div></div>
+            <div class="fui-body">
+              <div class="fui-sb"><div class="fui-si a"></div><div class="fui-si" style="width:78%"></div><div class="fui-si" style="width:55%"></div><div class="fui-si" style="width:82%"></div><div class="fui-si" style="width:46%"></div><div class="fui-si" style="width:68%"></div></div>
+              <div>
+                <div class="fui-stats">
+                  <div class="fui-stat"><div class="fss-l">Events</div><div class="fss-v">24<span class="fss-g">+12%</span></div></div>
+                  <div class="fui-stat"><div class="fss-l">Members</div><div class="fss-v">1.2k<span class="fss-g">+38%</span></div></div>
+                  <div class="fui-stat"><div class="fss-l">Revenue</div><div class="fss-v">$48k<span class="fss-g">+24%</span></div></div>
+                </div>
+                <div class="fui-chart" id="fuiChart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="os-btns">
+            <button class="btn btn-fill" onclick="gt('access')">Get Early Access</button>
+            <button class="btn btn-outline" onclick="gt('pillars')">Learn More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sd"></div>
+
+<!-- ═══ LEAD CAPTURE ═══ -->
+<section id="access" class="sec">
+  <div class="ctr-xs" style="text-align:center">
+    <span class="sec-tag rv">006 — Access</span>
+    <h2 class="sec-h rv" data-d="1" style="font-size:clamp(2rem,5vw,3.2rem)">Get early<br><em>access.</em></h2>
+    <p class="body-p rv" data-d="2" style="max-width:none;margin:14px auto 0;font-size:.9rem">Be first in when TRIB3 OS launches. No noise.</p>
+    <div class="rv" data-d="3" style="margin-top:40px">
+      <div class="form-box">
+        <div id="sucState" class="h suc">
+          <div class="suc-ico"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h3 class="suc-h">You're in.</h3>
+          <p class="suc-p">We'll reach out when it's time.</p>
+          <div style="display:flex;justify-content:center;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="gt('experiences')">Explore Events</button>
+            <button class="btn btn-outline btn-sm" onclick="gt('community')">View Network</button>
+          </div>
+          <button id="csvDownloadBtn" class="h" onclick="downloadLeadsCSV()" style="margin-top:20px;width:100%;padding:10px;border:1px dashed rgba(140,90,255,.2);font-family:var(--F-mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:rgba(140,90,255,.45);background:rgba(140,90,255,.04);transition:all .35s" onmouseover="this.style.borderColor='rgba(140,90,255,.45)';this.style.color='rgba(160,120,255,.75)'" onmouseout="this.style.borderColor='rgba(140,90,255,.2)';this.style.color='rgba(140,90,255,.45)'">⬇ Export Leads CSV</button>
+        </div>
+        <div id="formState">
+          <div class="steps">
+            <div class="std on" id="s1d">1</div>
+            <div class="stc off" id="sconn"></div>
+            <div class="std off" id="s2d">2</div>
+          </div>
+          <div id="fStep1">
+            <input class="fi" type="text" id="fn" placeholder="Name"/>
+            <input class="fi" type="email" id="fe" placeholder="Email" oninput="chkEmail()"/>
+            <input class="fi" type="tel" id="fp" placeholder="Phone (optional)"/>
+            <input type="hidden" id="fEventRef" value=""/>
+            <button class="btn-main off" id="contBtn" onclick="nextStep()">Continue →</button>
+          </div>
+          <div id="fStep2" class="h">
+            <p style="font-family:var(--F-body);font-size:.88rem;font-weight:300;color:rgba(255,255,255,.28);margin-bottom:16px">What interests you?</p>
+            <div class="int-chips" id="intChips"></div>
+            <div class="chk-row" onclick="toggleOs()">
+              <div class="chk on" id="osChk"><svg viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="1.8"><path d="M1.5 5l2.5 2.5L8.5 2"/></svg></div>
+              <span class="chk-lbl">TRIB3 OS early access</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onclick="prevStep()" style="padding:13px 18px;border:1px solid rgba(255,255,255,.07);font-family:var(--F-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);background:none;transition:all .3s" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">← Back</button>
+              <button class="btn-main on" style="flex:1" onclick="submitForm()">Join TRIB3</button>
+            </div>
+            <p class="fnote">No noise. Just signal.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end .wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft">
+    <div class="ft-g">
+      <div><button class="ft-logo" onclick="gt('hero')">TRIB3</button><p class="ft-tl">Signal over noise.</p></div>
+      <div class="ft-links">
+        <button class="ftl" onclick="gt('experiences')">Experiences</button>
+        <button class="ftl" onclick="gt('community')">Community</button>
+        <button class="ftl" onclick="gt('media')">Media</button>
+        <button class="ftl" onclick="gt('os')">OS</button>
+        <button class="ftl" onclick="gt('access')">Access</button>
+      </div>
+      <div class="ft-soc">
+        <a class="fts" href="https://instagram.com/trib3.exp" target="_blank" rel="noopener">Instagram</a>
+        <a class="fts" href="https://x.com/trib3multiverse" target="_blank" rel="noopener">X (Twitter)</a>
+        <a class="fts" href="mailto:trib3info@gmail.com">Email</a>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <p class="ft-c">© 2026 TRIB3. All rights reserved.</p>
+      <p class="ft-c">Not for everyone.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   TRIB3 — FULLY TESTED INTERACTIVE SYSTEM v4
+   - Nav: scroll-spy active states, mobile menu, ESC close
+   - Events: filter tabs, RSVP banner, lightbox, media cross-link
+   - Community: featured community cards → access form
+   - Media: photo/video/article tabs, photo↔event cross-link
+   - Lead Form: 2-step, email validation, interest chips, OS toggle,
+                localStorage persistence, event-ref injection,
+                CSV download for xlsx handoff
+   - All lightboxes: ESC close, bg-click close, body scroll lock
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── DATA ─────────────────────────────────────────────────────────── */
+
+const EVENTS = [
+  // CARS & SOUNDS
+  { id:1, series:"cars", title:"Cars & Sounds Vol. 3", sub:"Automotive Culture Night", status:"upcoming", date:"May 10, 2026", location:"Brooklyn, NY", price:"$45 – $100", color:"#1a0d36", icon:"car", sold:false,
+    media:["cars-01","cars-02","cars-03"], desc:"An intimate gathering of rare machines, curated sound, and the culture that connects them." },
+  { id:2, series:"cars", title:"Cars & Sounds Vol. 2", sub:"Automotive Culture Night", status:"past", date:"Feb 22, 2026", location:"Los Angeles, CA", price:"Sold Out", color:"#1a0d36", icon:"car", sold:true,
+    media:["cars-02","cars-03"], desc:"Over 200 vehicles and an unforgettable night in South LA." },
+  { id:3, series:"cars", title:"Cars & Sounds Vol. 1", sub:"Automotive Culture Night", status:"past", date:"Oct 2025", location:"Miami, FL", price:"Sold Out", color:"#1a0d36", icon:"car", sold:true,
+    media:["cars-01"], desc:"Where it all started. A debut that set the standard." },
+  // HOUSE BL3ND
+  { id:4, series:"music", title:"HB001 — Day Party + Vendor Market", sub:"House Bl3nd", status:"past", date:"Jul 27", location:"Oakland Mall · West Wing & Courtyard", price:"Free Entry", color:"#0a1528", icon:"music", sold:true,
+    media:["music-01","music-02"], desc:"A full-day takeover at Oakland Mall — live selectors, vendor market, and the community all in one space." },
+  { id:5, series:"music", title:"HB002 — Alley Pop-Up Vol. 2", sub:"House Bl3nd", status:"past", date:"Aug 23", location:"Eastern Market", price:"Free Entry", color:"#0a1528", icon:"music", sold:true,
+    media:["music-02"], desc:"Back in the alley. Eastern Market Vol. 2 — an intimate open-air pop-up with curated sounds and local energy." },
+  { id:6, series:"music", title:"HB003 — Summer Sendoff", sub:"House Bl3nd", status:"past", date:"Sep 27", location:"Eastern Market", price:"Free Entry", color:"#0a1528", icon:"music", sold:true,
+    media:["music-01","music-02"], desc:"We closed out summer the right way. Eastern Market one last time before the season turned." },
+  { id:7, series:"music", title:"HB Rooftop — EcoSessions", sub:"House Bl3nd · 21+", status:"past", date:"Sep 19", location:"Beacon Park", price:"21+ Event", color:"#0d1a36", icon:"music", sold:true,
+    media:["music-01"], desc:"An elevated rooftop experience at Beacon Park. EcoSessions brought the sound outdoors — 21 and up only." },
+  { id:8, series:"music", title:"HB Giveback — Holiday Toy Drive", sub:"House Bl3nd", status:"past", date:"Dec 13", location:"Oakland Mall", price:"$5 or Toy Entry", color:"#0d1228", icon:"music", sold:true,
+    media:[], desc:"Gave back to the community during the holiday season. Entry was $5 or a donated toy for local families." },
+  { id:14, series:"music", title:"HB — Lunar New Year", sub:"House Bl3nd", status:"past", date:"Feb 28", location:"Detroit, MI", price:"Free Entry", color:"#1a0a1e", icon:"music", sold:true,
+    media:["music-01"], desc:"A Lunar New Year celebration with the TRIB3 community. Good energy, great music, and a room full of people ringing in the new year together." },
+  // PICKLEBALL PARTY
+  { id:9, series:"sport", title:"Pickleball Party Vol. 3", sub:"Sport & Social", status:"upcoming", date:"May 4, 2026", location:"Austin, TX", price:"$35 – $60", color:"#1a2d0d", icon:"sport", sold:false,
+    media:["sport-01","sport-02"], desc:"TRIB3's signature sport-meets-social experience. Courts, music, and the community." },
+  { id:10, series:"sport", title:"Pickleball Party Vol. 2", sub:"Sport & Social", status:"past", date:"Mar 8, 2026", location:"Atlanta, GA", price:"Sold Out", color:"#1a2d0d", icon:"sport", sold:true,
+    media:["sport-01","sport-02"], desc:"The fastest-growing event in the series. 180 players, two DJ sets, and a cookout." },
+  { id:11, series:"sport", title:"Pickleball Party Vol. 1", sub:"The Debut", status:"past", date:"Dec 2025", location:"Los Angeles, CA", price:"Sold Out", color:"#1a2d0d", icon:"sport", sold:true,
+    media:["sport-01"], desc:"The debut that sparked a movement. 120 attendees. Zero empty courts." },
+  // GATHERINGS
+  { id:12, series:"gathering", title:"Late Night Gathering #14", sub:"Members-Only Dinner", status:"upcoming", date:"Apr 19, 2026", location:"NYC", price:"By Invite", color:"#1a1a2d", icon:"users", sold:false,
+    media:[], desc:"An intimate dinner for TRIB3 operators and community leads." },
+  { id:13, series:"gathering", title:"Creator Summit 2026", sub:"Annual Collective", status:"upcoming", date:"Jul 2026", location:"TBA", price:"TBA", color:"#1a1a2d", icon:"users", sold:false,
+    media:[], desc:"TRIB3's annual gathering of its most active members across all verticals." },
+];
+
+const PORTFOLIO = [
+  { title:"Cars & Sounds II", cat:"Events", year:"2026", color:"#1a0d36", size:"lg" },
+  { title:"Studio Session", cat:"Content", year:"2025", color:"#0d1a36", size:"sm" },
+  { title:"The Loft", cat:"Spaces", year:"2024", color:"#0d361a", size:"md" },
+  { title:"House Bl3nd Vol.3", cat:"Events", year:"2026", color:"#361a0d", size:"md" },
+  { title:"BTS: The Process", cat:"Content", year:"2025", color:"#2d0d1a", size:"sm" },
+  { title:"Run Club x Track", cat:"Community", year:"2025", color:"#0d1a2d", size:"lg" },
+  { title:"TRIB3 Run Club", cat:"Community", year:"2026", color:"#1a0d2d", size:"md" },
+  { title:"Pickleball Party I", cat:"Events", year:"2025", color:"#0d2d0d", size:"sm" },
+];
+
+const MEMBERS = [
+  { n:"Johnny Nguyen",    r:"Member", c:"Detroit" },
+  { n:"Jimmy Nguyen",     r:"Member", c:"Detroit" },
+  { n:"Kyle Cabanas",     r:"Member", c:"Detroit" },
+  { n:"James Kim",        r:"Member", c:"Detroit" },
+  { n:"Anthony Nguyen",   r:"Member", c:"Detroit" },
+  { n:"Kaylee Uh",        r:"Member", c:"Detroit" },
+  { n:"Ian Green",        r:"Member", c:"Detroit" },
+  { n:"Tyler Ashwell",    r:"Member", c:"Detroit" },
+  { n:"Rony Gimenez",     r:"Member", c:"Detroit" },
+  { n:"Ray Gimenez",      r:"Member", c:"Detroit" },
+  { n:"Keisuke Naruse",   r:"Member", c:"Detroit" },
+  { n:"Pattalina Kongla", r:"Member", c:"Detroit" },
+  { n:"Mikayla Dinh",     r:"Member", c:"Detroit" },
+  { n:"David Nguyen",     r:"Member", c:"Detroit" },
+  { n:"Karl Chidiac",     r:"Member", c:"Detroit" },
+];
+
+const FEAT_COMMS = [
+  { name:"TRIB3 Run Club", icon:"🏃", desc:"Early morning runs, pace groups, and a community that shows up. Weekly in 6 cities.", count:"380 members", color:"rgba(80,200,140,.08)", bdr:"rgba(80,200,140,.15)" },
+  { name:"Sound Network", icon:"🎵", desc:"DJs, producers & music curators. Home of House Bl3nd selectors worldwide.", count:"518 members", color:"rgba(80,100,255,.08)", bdr:"rgba(80,100,255,.14)" },
+  { name:"Visual Lab", icon:"📷", desc:"Photographers, directors & visual storytellers archiving the TRIB3 moment.", count:"289 members", color:"rgba(255,80,120,.07)", bdr:"rgba(255,80,120,.14)" },
+  { name:"Builders Collective", icon:"⚡", desc:"Founders & operators building at the intersection of culture and tech.", count:"342 members", color:"rgba(255,200,60,.06)", bdr:"rgba(255,200,60,.14)" },
+  { name:"Cars & Culture", icon:"🚗", desc:"Enthusiasts, collectors, and the people who keep car culture alive and moving.", count:"274 members", color:"rgba(140,90,255,.08)", bdr:"rgba(140,90,255,.14)" },
+  { name:"Court Culture", icon:"🏓", desc:"Pickleball players, sport event fans, and the fitness community around TRIB3.", count:"196 members", color:"rgba(80,200,200,.07)", bdr:"rgba(80,200,200,.14)" },
+];
+
+/* Media photos — keyed to events */
+const PHOTOS = [
+  { key:"cars-01",  label:"Cars & Sounds Vol.1",    event:"DET",  color:"#1a0828", series:"cars" },
+  { key:"cars-02",  label:"Cars & Sounds Vol.2",    event:"DET",  color:"#160622", series:"cars" },
+  { key:"cars-03",  label:"Cars & Sounds Preview",  event:"DET",  color:"#0e0420", series:"cars",      size:"t2" },
+  { key:"music-01", label:"House Bl3nd — HB001",    event:"DET",  color:"#041220", series:"music" },
+  { key:"music-02", label:"House Bl3nd — HB Rooftop",event:"DET", color:"#041a2e", series:"music",     size:"t2" },
+  { key:"sport-01", label:"Pickleball Party Vol.1",  event:"DET",  color:"#041a10", series:"sport" },
+  { key:"sport-02", label:"Pickleball Party Vol.2",  event:"DET",  color:"#061a06", series:"sport",    size:"w2" },
+  { key:"gather-01",label:"Late Night Gathering",    event:"DET",  color:"#0e0a1a", series:"gathering" },
+  { key:"gather-02",label:"Creator Summit",          event:"DET",  color:"#0a0a16", series:"gathering" },
+  { key:"run-01",   label:"Run Club x Track Day",    event:"DET",  color:"#041a10", series:"community" },
+  { key:"run-02",   label:"Run Club Morning",        event:"DET",  color:"#061606", series:"community", size:"t2" },
+  { key:"vis-01",   label:"Visual Lab Shoot",        event:"DET",  color:"#180410", series:"community" },
+];
+
+const VIDEOS = [
+  { title:"Cars & Sounds: The Full Story",    type:"Mini-Doc",       dur:"24 min",     color:"#1a0828", series:"cars",      location:"DET" },
+  { title:"House Bl3nd Vol.3 — Full Set",     type:"Live Recording", dur:"1h 12 min",  color:"#041220", series:"music",     location:"DET" },
+  { title:"Pickleball Party: Recap",          type:"Short Film",     dur:"8 min",      color:"#041a10", series:"sport",     location:"DET" },
+  { title:"TRIB3 Run Club — Season 1",        type:"Series",         dur:"6 × 12 min", color:"#061a06", series:"community", location:"DET" },
+  { title:"Behind the Build",                 type:"Documentary",    dur:"38 min",     color:"#0e0a1a", series:"community", location:"DET" },
+  { title:"House Bl3nd: Selector Stories",    type:"Interview",      dur:"4 × 18 min", color:"#041a2e", series:"music",     location:"DET" },
+];
+
+const ARTICLES = [
+  { title:"Why Cars & Sounds Is The Event of 2026", type:"Feature", dur:"8 min read", series:"cars" },
+  { title:"House Bl3nd: Building a Movement Through Music", type:"Essay", dur:"6 min read", series:"music" },
+  { title:"Pickleball, Community, and the Future of Sport Culture", type:"Op-Ed", dur:"5 min read", series:"sport" },
+  { title:"TRIB3 Run Club: Why We Run Together", type:"Story", dur:"4 min read", series:"community" },
+  { title:"Culture Report 2026 — Annual Review", type:"Report", dur:"14 min read", series:"all" },
+  { title:"TRIB3 OS: Why We're Building This", type:"Announcement", dur:"4 min read", series:"all" },
+];
+
+/* ── STATE ─────────────────────────────────────────────────────────── */
+let evtFilter  = "all";
+let mediaMode  = "photos";
+let osOn       = true;
+let selInts    = [];
+let mobOpen    = false;
+let pendingEvtRef = ""; // set when RSVP clicked from specific event
+
+const INTERESTS = ["Events","Community","Media","Cars & Sounds","House Bl3nd","Pickleball","Run Club","TRIB3 OS"];
+
+/* ── NAV ──────────────────────────────────────────────────────────── */
+function gt(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({behavior:"smooth", block:"start"});
+  if(mobOpen) toggleMob();
+}
+
+function toggleMob(){
+  mobOpen = !mobOpen;
+  document.getElementById("ham").classList.toggle("open", mobOpen);
+  document.getElementById("mob").classList.toggle("open", mobOpen);
+  document.body.style.overflow = mobOpen ? "hidden" : "";
+}
+
+// scroll spy + nav background
+window.addEventListener("scroll", ()=>{
+  document.getElementById("nav").classList.toggle("scrolled", scrollY > 60);
+  const secs = ["experiences","community","media","os","access"];
+  let cur = "";
+  secs.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top < innerHeight * 0.55) cur = id;
+  });
+  document.querySelectorAll(".nl").forEach(b => b.classList.toggle("active", b.dataset.s === cur));
+}, {passive:true});
+
+// close mobile menu on ESC
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape"){
+    if(mobOpen) toggleMob();
+    closeLbNoAnim();
+  }
+});
+
+/* ── CURSOR GLOW ──────────────────────────────────────────────────── */
+const csrEl = document.getElementById("csr");
+window.addEventListener("mousemove", e=>{
+  csrEl.style.left = (e.clientX - 180) + "px";
+  csrEl.style.top  = (e.clientY - 180) + "px";
+}, {passive:true});
+
+/* ── CONSTELLATION CANVAS ─────────────────────────────────────────── */
+(()=>{
+  const c = document.getElementById("cvs"), ctx = c.getContext("2d");
+  let w, h, pts = [], mx = -1e3, my = -1e3;
+  const resize = ()=>{ w = c.width = innerWidth; h = c.height = innerHeight; };
+  resize();
+  window.addEventListener("resize", ()=>{ resize(); init(); }, {passive:true});
+  const init = ()=>{
+    const N = Math.min(Math.floor(w*h/9500), 90);
+    pts = Array.from({length:N}, ()=>({
+      x:Math.random()*w, y:Math.random()*h,
+      vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28,
+      r:Math.random()*1.3+.4, o:Math.random()*.35+.12
+    }));
+  };
+  init();
+  window.addEventListener("mousemove", e=>{ mx=e.clientX; my=e.clientY; }, {passive:true});
+  const draw = ()=>{
+    ctx.clearRect(0,0,w,h);
+    pts.forEach((p,i)=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=w; if(p.x>w)p.x=0; if(p.y<0)p.y=h; if(p.y>h)p.y=0;
+      const dx=mx-p.x, dy=my-p.y, d=Math.hypot(dx,dy);
+      if(d<160){ p.x+=dx*.002; p.y+=dy*.002; }
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(150,120,240,${p.o})`; ctx.fill();
+      for(let j=i+1; j<pts.length; j++){
+        const q=pts[j], dd=Math.hypot(p.x-q.x, p.y-q.y);
+        if(dd<120){
+          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(120,100,220,${.09*(1-dd/120)})`; ctx.lineWidth=.5; ctx.stroke();
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
+})();
+
+/* ── SCROLL REVEAL ────────────────────────────────────────────────── */
+const rvObs = new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("v"); rvObs.unobserve(e.target); } });
+}, {threshold:.08, rootMargin:"-50px 0px -8% 0px"});
+const initReveal = ()=> document.querySelectorAll(".rv:not(.v)").forEach(el=>rvObs.observe(el));
+
+/* ── TICKER ───────────────────────────────────────────────────────── */
+function buildTicker(){
+  const items = ["Cars & Sounds","House Bl3nd","Pickleball Party","TRIB3 Run Club",
+                 "Visual Lab","Sound Network","Builders Collective","Court Culture","Culture · Community · Media"];
+  const t = items.map(i=>`<span>${i}</span><span class="sep"> · </span>`).join("");
+  document.getElementById("ticker").innerHTML = t + t;
+}
+
+/* ── EVENT ICONS ──────────────────────────────────────────────────── */
+const ICONS = {
+  car:   `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M5 17H3a2 2 0 0 1-2-2v-3l4-5h12l4 5v3a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/><path d="M5 10h14"/></svg>`,
+  music: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+  sport: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><ellipse cx="12" cy="12" rx="10" ry="6.5" transform="rotate(-35 12 12)"/><path d="M12 5v14M5 12h14"/></svg>`,
+  users: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+};
+
+/* ── EVENTS ───────────────────────────────────────────────────────── */
+function setEvtFilter(f, btn){
+  evtFilter = f;
+  if(btn){
+    document.querySelectorAll("#evtTabs .tab").forEach(b=>b.classList.remove("on"));
+    btn.classList.add("on");
+  }
+  renderEvents();
+}
+
+function renderEvents(){
+  const grid = document.getElementById("evtGrid");
+  let filtered = EVENTS;
+  if(evtFilter === "upcoming")     filtered = EVENTS.filter(e=>e.status==="upcoming");
+  else if(evtFilter === "past")    filtered = EVENTS.filter(e=>e.status==="past");
+  else if(evtFilter !== "all")     filtered = EVENTS.filter(e=>e.series===evtFilter);
+
+  const upcomingAvail = filtered.filter(e=>e.status==="upcoming"&&!e.sold);
+  const freeCount  = upcomingAvail.filter(e=>e.price==='Free RSVP').length;
+  const paidCount  = upcomingAvail.filter(e=>e.price!=='Free RSVP').length;
+  const bannerSub  = freeCount && paidCount ? `${upcomingAvail.length} events — some free, some ticketed`
+                   : freeCount ? `${freeCount} free event${freeCount>1?'s':''} — just RSVP`
+                   : `${paidCount} event${paidCount>1?'s':''} with spots available`;
+  const bannerCta  = freeCount && !paidCount ? 'Free RSVP →' : 'RSVP / Get Tickets →';
+
+  const banner = upcomingAvail.length ? `
+    <div style="grid-column:1/-1;border:1px solid rgba(100,200,140,.14);background:rgba(100,200,140,.04);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:4px">
+      <div>
+        <p style="font-family:var(--F-display);font-weight:700;font-size:1.05rem;letter-spacing:.02em;color:rgba(255,255,255,.85)">Upcoming Experiences</p>
+        <p style="font-family:var(--F-mono);font-size:9px;letter-spacing:.18em;color:rgba(100,200,140,.65);margin-top:3px">${bannerSub}</p>
+      </div>
+      <button onclick="gt('access')" style="font-family:var(--F-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:11px 22px;border:1px solid rgba(100,200,140,.3);background:rgba(100,200,140,.08);color:rgba(120,220,160,.85);transition:all .35s;white-space:nowrap;flex-shrink:0" onmouseover="this.style.background='rgba(100,200,140,.18)';this.style.color='rgba(180,255,200,1)'" onmouseout="this.style.background='rgba(100,200,140,.08)';this.style.color='rgba(120,220,160,.85)'">${bannerCta}</button>
+    </div>` : '';
+
+  grid.innerHTML = banner + filtered.map((ev,i)=>`
+    <button class="evt-feat" style="animation:fade-up .5s ease ${i*.06}s both" onclick="openEvtLb(${ev.id})">
+      <div class="ef-thumb" style="background:linear-gradient(155deg,${ev.color}cc,${ev.color}44,#050505)">
+        <span class="ef-badge ${ev.status==='upcoming'?(ev.sold?'b-soo':'b-up'):'b-ps'}">${ev.status==='upcoming'?(ev.sold?'Sold Out':'Upcoming'):'Past Event'}</span>
+        <div class="ef-icon-wrap">${ICONS[ev.icon]||ICONS.users}</div>
+      </div>
+      <div class="ef-body">
+        <p class="ef-cat">${ev.sub}</p>
+        <h4 class="ef-title">${ev.title}</h4>
+        <div class="ef-meta">
+          <span class="ef-m"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${ev.date}</span>
+          <span class="ef-m"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${ev.location}</span>
+        </div>
+      </div>
+      <div class="ef-foot">
+        <span class="ef-price">${ev.price}</span>
+        ${ev.status==='upcoming'&&!ev.sold
+          ? `<span style="font-family:var(--F-mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:${ev.price==='Free RSVP'?'rgba(140,200,255,.65)':'rgba(100,200,140,.6)'}">${ev.price==='Free RSVP'?'Free RSVP':'Register'}</span>`
+          : `<span style="font-family:var(--F-mono);font-size:8px;letter-spacing:.14em;color:rgba(255,255,255,.3)">${ev.status==='past'?'Recap Available':'Sold Out'}</span>`}
+      </div>
+    </button>
+  `).join("");
+}
+
+function openEvtLb(id){
+  const ev = EVENTS.find(e=>e.id===id);
+  if(!ev) return;
+  document.getElementById("lbImg").innerHTML=`
+    <div style="width:100%;height:100%;background:linear-gradient(155deg,${ev.color}cc,${ev.color}44,#050505);display:flex;align-items:center;justify-content:center">
+      <div style="width:64px;height:64px;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center">${ICONS[ev.icon]||ICONS.users}</div>
+    </div>`;
+  document.getElementById("lbImg").querySelector("svg")?.setAttribute("style","width:28px;height:28px;stroke:rgba(255,255,255,.4)");
+  document.getElementById("lbCat").textContent = `${ev.sub} · ${ev.date} · ${ev.location}`;
+  document.getElementById("lbTitle").textContent = ev.title;
+  document.getElementById("lbDesc").textContent = ev.desc;
+
+  const mediaBtn = ev.media.length
+    ? `<button class="btn btn-outline btn-sm" onclick="closeLbNoAnim();setMediaTab('photos');gt('media')">View Photos</button>` : "";
+  const rsvpBtn = ev.status==='upcoming' && !ev.sold
+    ? `<button class="btn btn-fill btn-sm" onclick="closeLbNoAnim();pendingEvtRef='${ev.title.replace(/'/g,"\\'")}';injectEvtRef();gt('access')">RSVP / Get Tickets</button>` : "";
+  const recapBtn = ev.status==='past' && ev.media.length
+    ? `<button class="btn btn-outline btn-sm" onclick="closeLbNoAnim();setMediaTab('videos');gt('media')">Watch Recap</button>` : "";
+
+  document.getElementById("lbActs").innerHTML = `${rsvpBtn}${mediaBtn}${recapBtn}<button class="btn btn-outline btn-sm" onclick="closeLbNoAnim()">Close</button>`;
+  openLb();
+}
+
+/* ── COMMUNITY ────────────────────────────────────────────────────── */
+function renderComm(){
+  document.getElementById("memList").innerHTML = MEMBERS.map(m=>`
+    <div class="mem-row">
+      <div class="mem-av">${m.n.split(" ").map(w=>w[0]).join("").slice(0,2)}</div>
+      <div style="flex:1;min-width:0;overflow:hidden"><p class="mem-n" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.n}</p><p class="mem-r">${m.r}</p></div>
+      <span class="mem-c">${m.c}</span>
+    </div>
+  `).join("");
+
+  document.getElementById("fcGrid").innerHTML = FEAT_COMMS.map(c=>`
+    <button class="fc" style="border-color:${c.bdr};background:${c.color}" onclick="openCommLb('${c.name.replace(/'/g,"\\'")}')">
+      <span class="fc-ico">${c.icon}</span>
+      <p class="fc-n">${c.name}</p>
+      <p class="fc-d">${c.desc}</p>
+      <span class="fc-cnt">${c.count}</span>
+    </button>
+  `).join("");
+}
+
+function openCommLb(name){
+  const c = FEAT_COMMS.find(x=>x.name===name);
+  if(!c) return;
+  document.getElementById("lbImg").innerHTML=`
+    <div style="width:100%;height:100%;background:${c.color};display:flex;align-items:center;justify-content:center">
+      <span style="font-size:3.5rem">${c.icon}</span>
+    </div>`;
+  document.getElementById("lbCat").textContent = "Featured Community";
+  document.getElementById("lbTitle").textContent = c.name;
+  document.getElementById("lbDesc").textContent = c.desc + " · " + c.count;
+  document.getElementById("lbActs").innerHTML = `
+    <button class="btn btn-fill btn-sm" onclick="closeLbNoAnim();pendingEvtRef='${c.name.replace(/'/g,"\\'")}';injectEvtRef();gt('access')">Join Community</button>
+    <button class="btn btn-outline btn-sm" onclick="closeLbNoAnim()">Close</button>`;
+  openLb();
+}
+
+/* ── MEDIA LIBRARY ────────────────────────────────────────────────── */
+function setMediaTab(type, btn){
+  mediaMode = type;
+  if(btn){
+    document.querySelectorAll("#mediaTabs .tab").forEach(b=>b.classList.remove("on"));
+    btn.classList.add("on");
+  } else {
+    document.querySelectorAll("#mediaTabs .tab").forEach((b,i)=>{
+      b.classList.toggle("on", ["photos","videos","articles"][i] === type);
+    });
+  }
+  renderMedia();
+}
+
+function renderMedia(){
+  const cont = document.getElementById("mediaContent");
+  if(mediaMode === "photos"){
+    cont.innerHTML = `<div class="photo-g">${PHOTOS.map((p,i)=>`
+      <div class="ph${p.size?' '+p.size:''}" style="animation:fade-up .4s ease ${i*.04}s both" onclick="openPhotoLb('${p.key}')">
+        <div class="ph-inner" style="background:linear-gradient(155deg,${p.color}ee,${p.color}55,#030303)">
+          <div class="ph-hover">
+            <div class="ph-eye"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <span class="ph-lbl">${p.label}</span>
+          </div>
+          <span class="ph-evtag">${p.event}</span>
+          <span class="ph-cs">Coming Soon</span>
+        </div>
+      </div>
+    `).join("")}</div>`;
+  } else if(mediaMode === "videos"){
+    cont.innerHTML = `<div class="vid-g">${VIDEOS.map((v,i)=>`
+      <div class="vc" style="animation:fade-up .4s ease ${i*.06}s both" onclick="openVideoLb(${i})">
+        <div class="vc-thumb" style="background:linear-gradient(155deg,${v.color}cc,${v.color}44,#030303)">
+          <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          <div class="vc-scan"></div>
+          <span class="vc-cs">Coming Soon</span>
+        </div>
+        <div class="vc-info">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span class="vc-type">${v.type}</span>
+            <span style="font-family:var(--F-mono);font-size:7px;letter-spacing:.18em;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.08);padding:2px 7px">${v.location}</span>
+          </div>
+          <p class="vc-t">${v.title}</p>
+          <p class="vc-d">${v.dur}</p>
+        </div>
+      </div>
+    `).join("")}</div>`;
+  } else {
+    cont.innerHTML = `<div class="art-l">${ARTICLES.map((a,i)=>`
+      <button class="ar" style="animation:fade-up .4s ease ${i*.05}s both" onclick="openArticleLb(${i})">
+        <span class="ar-n">0${i+1}</span>
+        <span class="ar-ty">${a.type}</span>
+        <span class="ar-t">${a.title}</span>
+        <span class="ar-d">${a.dur}</span>
+        <div class="ar-arr"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div>
+      </button>
+    `).join("")}</div>`;
+  }
+  initReveal();
+}
+
+function openPhotoLb(key){
+  const p = PHOTOS.find(x=>x.key===key);
+  if(!p) return;
+  document.getElementById("lbImg").innerHTML=`
+    <div style="width:100%;height:100%;background:linear-gradient(155deg,${p.color}ee,${p.color}55,#030303);display:flex;align-items:center;justify-content:center">
+      <div style="width:44px;height:44px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(255,255,255,.35);fill:none;stroke-width:1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+    </div>`;
+  document.getElementById("lbCat").textContent = p.event;
+  document.getElementById("lbTitle").textContent = p.label;
+  document.getElementById("lbDesc").textContent = "";
+  // cross-link back to related event
+  const relEvt = EVENTS.find(e=>e.media.includes(key));
+  const evtBtn = relEvt
+    ? `<button class="btn btn-fill btn-sm" onclick="closeLbNoAnim();openEvtLb(${relEvt.id})">View Event</button>` : "";
+  document.getElementById("lbActs").innerHTML = `${evtBtn}<button class="btn btn-outline btn-sm" onclick="closeLbNoAnim()">Close</button>`;
+  openLb();
+}
+
+function openVideoLb(idx){
+  const v = VIDEOS[idx];
+  if(!v) return;
+  document.getElementById("lbImg").innerHTML=`
+    <div style="width:100%;height:100%;background:linear-gradient(155deg,${v.color}cc,${v.color}44,#030303);display:flex;align-items:center;justify-content:center">
+      <div style="width:60px;height:60px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:rgba(255,255,255,.65);margin-left:4px"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+    </div>`;
+  document.getElementById("lbCat").textContent = v.type + " · " + v.dur;
+  document.getElementById("lbTitle").textContent = v.title;
+  document.getElementById("lbDesc").textContent = "";
+  document.getElementById("lbActs").innerHTML = `
+    <button class="btn btn-fill btn-sm">▶ Watch Now</button>
+    <button class="btn btn-outline btn-sm" onclick="closeLbNoAnim();gt('access')">Subscribe</button>
+    <button class="btn btn-outline btn-sm" onclick="closeLbNoAnim()">Close</button>`;
+  openLb();
+}
+
+function openArticleLb(idx){
+  const a = ARTICLES[idx];
+  if(!a) return;
+  document.getElementById("lbImg").innerHTML=`
+    <div style="width:100%;height:100%;background:linear-gradient(155deg,#0a0a1a,#050510);display:flex;align-items:center;justify-content:center;padding:28px;text-align:center">
+      <p style="font-family:var(--F-display);font-weight:800;font-size:clamp(1.1rem,3vw,1.6rem);color:rgba(255,255,255,.7);line-height:1.2;letter-spacing:.01em">${a.title}</p>
+    </div>`;
+  document.getElementById("lbCat").textContent = a.type + " · " + a.dur;
+  document.getElementById("lbTitle").textContent = a.title;
+  document.getElementById("lbDesc").textContent = "";
+  document.getElementById("lbActs").innerHTML = `
+    <button class="btn btn-fill btn-sm">Read Article</button>
+    <button class="btn btn-outline btn-sm" onclick="closeLbNoAnim()">Close</button>`;
+  openLb();
+}
+
+/* ── LIGHTBOX ─────────────────────────────────────────────────────── */
+function openLb(){
+  document.getElementById("lb").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeLb(e){
+  // only close if click was on overlay or bg, not panel
+  if(e && !e.target.closest(".lb-bg") && e.target.id !== "lb") return;
+  closeLbNoAnim();
+}
+function closeLbNoAnim(){
+  document.getElementById("lb").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+/* ── OS FAKE CHART ────────────────────────────────────────────────── */
+function buildChart(){
+  const bars = [32,52,40,70,48,84,60,76,54,90,68,82,44,74];
+  document.getElementById("fuiChart").innerHTML =
+    bars.map(h=>`<div class="fui-bar2" style="height:${h}%"></div>`).join("");
+}
+
+/* ── LEAD FORM — LOCALSTORAGE + XLSX INTEGRATION ─────────────────── */
+
+// Load existing leads from localStorage
+function getLeads(){
+  try { return JSON.parse(localStorage.getItem("trib3_leads") || "[]"); }
+  catch(e){ return []; }
+}
+
+// Inject event reference from cross-section navigation
+function injectEvtRef(){
+  if(pendingEvtRef){
+    const el = document.getElementById("fEventRef");
+    if(el) el.value = pendingEvtRef;
+  }
+}
+
+function renderChips(){
+  document.getElementById("intChips").innerHTML = INTERESTS.map(i=>`
+    <button class="ic${selInts.includes(i)?" s":""}" onclick="toggleInt('${i}')">${i}</button>
+  `).join("");
+}
+
+function toggleInt(i){
+  selInts = selInts.includes(i) ? selInts.filter(x=>x!==i) : [...selInts, i];
+  renderChips();
+}
+
+function toggleOs(){
+  osOn = !osOn;
+  const b = document.getElementById("osChk");
+  b.classList.toggle("on", osOn);
+  b.innerHTML = osOn
+    ? `<svg viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="1.8"><path d="M1.5 5l2.5 2.5L8.5 2"/></svg>`
+    : "";
+}
+
+function chkEmail(){
+  const v   = document.getElementById("fe").value.trim();
+  const ok  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const btn = document.getElementById("contBtn");
+  btn.classList.toggle("on",  ok);
+  btn.classList.toggle("off", !ok);
+}
+
+function nextStep(){
+  const email = document.getElementById("fe").value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+  document.getElementById("fStep1").classList.add("h");
+  document.getElementById("fStep2").classList.remove("h");
+  document.getElementById("s1d").style.opacity = ".45";
+  document.getElementById("s2d").classList.replace("off","on");
+  document.getElementById("sconn").classList.replace("off","on");
+  renderChips();
+  // inject any pending event reference
+  injectEvtRef();
+}
+
+function prevStep(){
+  document.getElementById("fStep2").classList.add("h");
+  document.getElementById("fStep1").classList.remove("h");
+  document.getElementById("s1d").style.opacity = "1";
+  document.getElementById("s2d").classList.replace("on","off");
+  document.getElementById("sconn").classList.replace("on","off");
+}
+
+function submitForm(){
+  const name     = document.getElementById("fn").value.trim() || "—";
+  const email    = document.getElementById("fe").value.trim();
+  const phone    = document.getElementById("fp").value.trim() || "";
+  const evtRef   = document.getElementById("fEventRef")?.value || pendingEvtRef || "";
+  const ts       = new Date().toISOString().slice(0,19).replace("T"," ");
+  const interests= selInts.join(", ") || "General";
+
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    prevStep(); return;
+  }
+
+  // build lead record
+  const leads = getLeads();
+  const id    = leads.length + 1;
+  const lead  = {
+    id, timestamp:ts, name, email, phone,
+    interests, os_access: osOn ? "Yes":"No",
+    source:"Website", event_ref:evtRef,
+    status:"New", follow_up:"", notes:"",
+    date: ts.slice(0,10)
+  };
+  leads.push(lead);
+  try { localStorage.setItem("trib3_leads", JSON.stringify(leads)); } catch(e){}
+
+  // show success
+  document.getElementById("formState").classList.add("h");
+  document.getElementById("sucState").classList.remove("h");
+
+  // offer CSV download after short delay
+  setTimeout(()=>{
+    const dl = document.getElementById("csvDownloadBtn");
+    if(dl) dl.classList.remove("h");
+  }, 800);
+
+  pendingEvtRef = "";
+}
+
+// CSV export — maps to xlsx Leads sheet columns exactly
+function downloadLeadsCSV(){
+  const leads = getLeads();
+  if(!leads.length){ alert("No leads yet."); return; }
+  const headers = ["ID","Timestamp","Name","Email","Phone","Interests","OS Access","Source","Event Ref","Status","Follow-Up Date","Notes","Date"];
+  const rows = leads.map(l=>[
+    l.id, l.timestamp, l.name, l.email, l.phone,
+    l.interests, l.os_access, l.source, l.event_ref,
+    l.status, l.follow_up, l.notes, l.date
+  ]);
+  const csv = [headers, ...rows]
+    .map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = `trib3-leads-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+/* ── INIT ─────────────────────────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", ()=>{
+  buildTicker();
+  renderEvents();
+  renderComm();
+  renderMedia();
+  buildChart();
+  renderChips();
+  initReveal();
+
+  // pre-fill name if returning lead
+  const leads = getLeads();
+  if(leads.length){
+    const last = leads[leads.length-1];
+    const fn = document.getElementById("fn");
+    if(fn && !fn.value) fn.value = last.name === "—" ? "" : last.name;
+  }
+});
+</script>
+</body>
+</html>
