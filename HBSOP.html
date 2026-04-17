@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HOUSE BL3ND — Master SOP</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --white: #f5f0e8;
+    --accent: #ff4d00;
+    --accent2: #ffd000;
+    --dim: #1a1a1a;
+    --muted: #444;
+    --border: #2a2a2a;
+    --orange: #ff8c00;
+    --yellow: #ffd000;
+    --blue: #0066ff;
+    --green: #00cc66;
+    --purple: #9933ff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--black); color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh; min-height: 100dvh;
+    overflow-x: hidden; font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LOCK ── */
+  #lock-screen {
+    position: fixed; inset: 0;
+    background: var(--black);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 9999; padding: 16px;
+  }
+  .lock-bg {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 39px,#1a1a1a 39px,#1a1a1a 40px),
+      repeating-linear-gradient(90deg,transparent,transparent 39px,#1a1a1a 39px,#1a1a1a 40px);
+    opacity: 0.4;
+  }
+  .lock-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    padding: 32px 24px; border: 1px solid var(--border);
+    background: rgba(8,8,8,0.96); width: 100%; max-width: 380px;
+  }
+  .lock-logo { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px,11vw,68px); letter-spacing: 4px; color: var(--white); line-height: 1; text-align: center; }
+  .lock-logo span { color: var(--accent); }
+  .lock-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; text-align: center; }
+  .lock-divider { width: 100%; height: 1px; background: var(--border); }
+  .lock-input {
+    width: 100%; background: var(--dim); border: 1px solid var(--border);
+    color: var(--white); font-family: 'DM Mono', monospace;
+    font-size: 22px; letter-spacing: 8px; padding: 16px 20px;
+    outline: none; text-align: center; transition: border-color 0.2s;
+    border-radius: 0; -webkit-appearance: none; appearance: none;
+  }
+  .lock-input:focus { border-color: var(--accent); }
+  .lock-input.error { border-color: #ff0033; animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+  .lock-btn {
+    width: 100%; background: var(--accent); color: var(--black);
+    border: none; font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 3px; padding: 16px;
+    cursor: pointer; transition: background 0.2s;
+    min-height: 54px; touch-action: manipulation;
+    -webkit-appearance: none; border-radius: 0;
+  }
+  .lock-btn:active { background: var(--accent2); }
+  .lock-error { font-family: 'DM Mono', monospace; font-size: 10px; color: #ff0033; letter-spacing: 2px; opacity: 0; transition: opacity 0.2s; text-align: center; }
+  .lock-error.show { opacity: 1; }
+
+  /* ── APP SHELL ── */
+  #app { display: none; min-height: 100vh; min-height: 100dvh; }
+
+  /* ── HEADER ── */
+  .site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border);
+    height: 52px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .header-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; flex-shrink: 0; }
+  .header-logo span { color: var(--accent); }
+  .header-tag { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--muted); display: none; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(8,8,8,0.99); border-top: 1px solid var(--border);
+    display: flex; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .bnav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px 2px 7px; font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 0.5px;
+    color: var(--muted); background: none; border: none; cursor: pointer;
+    transition: color 0.2s; gap: 3px; touch-action: manipulation; text-transform: uppercase;
+    min-height: 54px;
+  }
+  .bnav-btn .bnav-icon { font-size: 16px; line-height: 1; }
+  .bnav-btn.active { color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero { padding: 28px 14px 24px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent); margin-bottom: 12px; }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(44px, 13vw, 90px);
+    letter-spacing: 2px; line-height: 0.92; margin-bottom: 14px;
+  }
+  .hero-title em { color: var(--accent); font-style: normal; }
+  .hero-desc { font-size: 13px; color: #aaa; line-height: 1.65; font-weight: 300; margin-bottom: 16px; }
+  .hero-code { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 1px; line-height: 1.6; word-break: break-word; }
+  .hero-code strong { color: var(--accent2); }
+
+  /* ── SECTIONS ── */
+  .sections { padding: 0 14px 110px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-header {
+    padding: 24px 0 16px; border-bottom: 1px solid var(--border);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: #222; line-height: 1; flex-shrink: 0; }
+  .section-eyebrow { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent); margin-bottom: 4px; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; line-height: 1; }
+
+  /* ── CARDS ── */
+  .card { background: var(--dim); border: 1px solid var(--border); padding: 18px; margin-bottom: 2px; }
+  .card-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .card-body { font-size: 13px; color: #999; line-height: 1.65; }
+
+  .grid-auto { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+
+  /* ── OVERVIEW ── */
+  .phase-cards { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+
+  .modes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 16px; }
+  .mode-card { background: var(--dim); border: 1px solid var(--border); padding: 14px 10px; text-align: center; }
+  .mode-icon { font-size: 18px; margin-bottom: 5px; }
+  .mode-name { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; margin-bottom: 4px; }
+  .mode-desc { font-family: 'DM Mono', monospace; font-size: 7.5px; letter-spacing: 0.3px; color: var(--muted); line-height: 1.5; }
+
+  .priorities-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+  .priority-item { background: var(--dim); border: 1px solid var(--border); padding: 14px; display: flex; align-items: flex-start; gap: 12px; }
+  .priority-tag { font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 2px; color: var(--accent); min-width: 76px; padding: 4px 6px; border: 1px solid var(--accent); text-align: center; flex-shrink: 0; margin-top: 2px; }
+  .priority-text { font-size: 12px; color: #ccc; line-height: 1.55; }
+
+  /* ── COMMITTEE ── */
+  .committee-item { margin-bottom: 2px; }
+  .committee-row {
+    display: flex; align-items: center; gap: 10px; padding: 14px 12px;
+    background: var(--dim); border: 1px solid var(--border);
+    cursor: pointer; transition: border-color 0.2s; touch-action: manipulation;
+    min-height: 52px;
+  }
+  .committee-row.open { border-color: var(--accent); }
+  .committee-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .committee-name { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; font-weight: 500; flex: 1; min-width: 0; }
+  .committee-members { font-size: 10px; color: var(--muted); display: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .committee-toggle { font-size: 20px; color: var(--muted); transition: transform 0.25s; flex-shrink: 0; width: 26px; text-align: center; line-height: 1; }
+  .committee-row.open .committee-toggle { transform: rotate(45deg); color: var(--accent); }
+  .committee-detail { display: none; background: #0f0f0f; border: 1px solid var(--border); border-top: none; padding: 14px 14px 14px 36px; }
+  .committee-detail.open { display: block; }
+  .detail-phase { margin-bottom: 12px; }
+  .detail-phase-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent); margin-bottom: 6px; }
+  .detail-tasks { list-style: none; }
+  .detail-tasks li { font-size: 12px; color: #999; padding: 4px 0 4px 14px; position: relative; line-height: 1.5; }
+  .detail-tasks li::before { content: '→'; position: absolute; left: 0; color: var(--muted); font-size: 10px; top: 5px; }
+
+  /* ── CONTRIBUTORS ── */
+  .contrib-box { background: var(--dim); border: 1px solid var(--border); padding: 18px; margin-bottom: 2px; }
+  .contrib-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--muted); margin-bottom: 10px; }
+  .contrib-names { font-size: 13px; color: #bbb; line-height: 1.9; }
+
+  /* ── TIMELINE ── */
+  .timeline-phases-wrap { display: flex; flex-direction: column; gap: 2px; }
+  .timeline-phase { background: var(--dim); border: 1px solid var(--border); padding: 18px; margin-bottom: 2px; }
+  .phase-roman { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: #2a2a2a; line-height: 1; }
+  .phase-name { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent); margin-bottom: 14px; margin-top: 2px; }
+  .phase-sub { font-size: 8px; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: 2px; margin-bottom: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid #1e1e1e;
+    font-size: 13px; color: #888; cursor: pointer;
+    transition: color 0.15s; touch-action: manipulation; min-height: 46px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li.checked { color: var(--green); text-decoration: line-through; }
+  .check-box {
+    width: 20px; height: 20px; min-width: 20px;
+    border: 1px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; transition: all 0.15s; flex-shrink: 0;
+  }
+  .checklist li.checked .check-box { background: var(--green); border-color: var(--green); color: var(--black); }
+  .tag {
+    font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.3px;
+    padding: 2px 5px; border-radius: 2px; margin-left: auto; flex-shrink: 0; white-space: nowrap;
+  }
+
+  /* ── SYSTEMS ── */
+  .systems-wrap { display: flex; flex-direction: column; gap: 2px; }
+  .system-card { background: var(--dim); border: 1px solid var(--border); padding: 18px; margin-bottom: 2px; }
+  .system-icon { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #2a2a2a; line-height: 1; margin-bottom: 8px; }
+  .system-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 5px; }
+  .system-focus { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent); margin-bottom: 12px; }
+  .system-items { list-style: none; }
+  .system-items li { font-size: 13px; color: #888; padding: 6px 0 6px 12px; border-bottom: 1px solid #1e1e1e; position: relative; line-height: 1.5; }
+  .system-items li:last-child { border-bottom: none; }
+  .system-items li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-size: 10px; top: 8px; }
+
+  .media-engine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .media-engine-item .me-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--accent); margin-bottom: 4px; }
+  .media-engine-item .me-desc { font-size: 12px; color: #888; line-height: 1.5; }
+
+  /* ── REVENUE ── */
+  .rev-tiers { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+  .rev-tier { background: var(--dim); border: 1px solid var(--border); padding: 18px; }
+  .rev-tier-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--muted); margin-bottom: 8px; }
+  .rev-tier-name { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; margin-bottom: 12px; }
+  .rev-items { list-style: none; }
+  .rev-items li { font-size: 13px; color: #999; padding: 8px 0; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; gap: 10px; }
+  .rev-items li:last-child { border-bottom: none; }
+  .rev-items li::before { content: '◈'; color: var(--accent2); font-size: 10px; flex-shrink: 0; }
+
+  .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 20px; }
+  .zone-card { background: var(--dim); border: 1px solid var(--border); padding: 16px; }
+  .zone-name { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; margin-bottom: 6px; }
+  .zone-desc { font-size: 11px; color: #888; line-height: 1.5; }
+
+  .decision-filter { display: flex; flex-direction: column; gap: 2px; margin-bottom: 0; }
+  .filter-q { padding: 18px; background: var(--dim); border: 1px solid var(--border); }
+  .filter-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+  .filter-q-text { font-size: 13px; color: #ccc; line-height: 1.6; }
+  .filter-note { background: var(--dim); border: 1px solid var(--border); padding: 14px 16px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+
+  /* ── VISION ── */
+  .vision-stage { background: var(--dim); border: 1px solid var(--border); padding: 20px; margin-bottom: 2px; position: relative; overflow: hidden; }
+  .vision-stage-num { position: absolute; top: 12px; right: 16px; font-family: 'Bebas Neue', sans-serif; font-size: 60px; color: #111; line-height: 1; }
+  /* ── ZONE GRID ── */
+  .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 16px; }
+  .zone-card { background: var(--dim); border: 1px solid var(--border); padding: 14px; }
+  .zone-name { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px; margin-bottom: 5px; }
+  .zone-desc { font-size: 11px; color: #888; line-height: 1.5; }
+
+  /* ── DECISION FILTER ── */
+  .decision-filter { display: flex; flex-direction: column; gap: 2px; margin-bottom: 0; }
+  .filter-q { padding: 16px; background: var(--dim); border: 1px solid var(--border); }
+  .filter-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+  .filter-q-text { font-size: 13px; color: #ccc; line-height: 1.6; }
+  .filter-note { background: var(--dim); border: 1px solid var(--border); border-top: none; padding: 12px 16px; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; }
+
+  /* ── VISION ── */
+  .vision-stages-wrap { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+  .vision-stage { background: var(--dim); border: 1px solid var(--border); padding: 18px; margin-bottom: 0; position: relative; overflow: hidden; }
+  .vision-stage-num { position: absolute; top: 10px; right: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: #111; line-height: 1; }
+  .vision-stage-name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; margin-bottom: 6px; position: relative; z-index: 2; }
+  .vision-stage-desc { font-size: 13px; color: #888; line-height: 1.65; position: relative; z-index: 2; }
+
+  /* ── EXPERIENCE LOOP ── */
+  .loop-bar {
+    display: flex; flex-wrap: wrap; row-gap: 8px; column-gap: 0;
+    background: var(--dim); border: 1px solid var(--border);
+    padding: 18px 14px; margin-bottom: 16px; align-items: center;
+  }
+  .loop-step { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--muted); white-space: nowrap; }
+  .loop-step.hl { color: var(--accent2); }
+  .loop-arrow { color: #333; margin: 0 5px; font-size: 11px; flex-shrink: 0; }
+
+  /* ── ONE-LINER ── */
+  .one-liner { background: var(--dim); border: 1px solid var(--accent); padding: 24px 16px; text-align: center; margin-top: 16px; }
+  .one-liner-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(20px, 5.5vw, 34px); letter-spacing: 2px; line-height: 1.4; }
+  .one-liner-text em { color: var(--accent); font-style: normal; }
+
+  /* ── SUB LABEL ── */
+  .sub-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 3px; color: var(--accent); margin-bottom: 10px; margin-top: 20px; }
+
+  /* ── FADE IN ── */
+  .fade-in { animation: fadeIn 0.35s ease forwards; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 2px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--muted); }
+
+  /* ── TOP NAV (desktop only) ── */
+  .top-nav { display: none; align-items: center; gap: 4px; }
+  .top-nav .nav-pill {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px;
+    padding: 6px 12px; border: 1px solid transparent;
+    cursor: pointer; background: none; color: var(--muted);
+    transition: all 0.2s; text-transform: uppercase; white-space: nowrap;
+  }
+  .top-nav .nav-pill:hover { color: var(--white); border-color: var(--border); }
+  .top-nav .nav-pill.active { color: var(--accent); border-color: var(--accent); }
+  .top-nav .feedback-pill { color: var(--accent2); border-color: var(--accent2); text-decoration: none; display: inline-flex; align-items: center; }
+  .top-nav .feedback-pill:hover { background: var(--accent2); color: var(--black); }
+
+  /* ── MOBILE FEEDBACK BUTTON in header ── */
+  .mobile-feedback {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 1.5px;
+    color: var(--accent2); border: 1px solid var(--accent2);
+    padding: 6px 10px; text-decoration: none; white-space: nowrap;
+    touch-action: manipulation; transition: all 0.2s;
+  }
+  .mobile-feedback:active { background: var(--accent2); color: var(--black); }
+
+  /* ── DESKTOP OVERRIDES ── */
+  @media (min-width: 768px) {
+    body { font-size: 15px; }
+    .bottom-nav { display: none; }
+    .mobile-feedback { display: none; }
+    .header-tag { display: block; }
+    .site-header { padding: 0 40px; height: 64px; }
+    .top-nav { display: flex; }
+
+    .hero { padding: 80px 40px 60px; }
+    .hero-eyebrow { font-size: 10px; }
+    .hero-title { font-size: clamp(60px, 8vw, 110px); }
+    .hero-desc { font-size: 15px; max-width: 520px; }
+    .hero-code { font-size: 11px; }
+
+    .sections { padding: 0 40px 80px; }
+    .section-num { font-size: 100px; }
+    .section-title { font-size: 48px; }
+    .section-header { padding: 60px 0 40px; margin-bottom: 32px; }
+
+    .card { padding: 28px; }
+    .card-title { font-size: 24px; }
+    .phase-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+    .modes-grid { grid-template-columns: repeat(5, 1fr); }
+
+    .committee-members { display: block; }
+    .committee-row { gap: 16px; padding: 18px 24px; min-height: auto; }
+    .committee-name { font-size: 13px; }
+    .committee-dot { width: 14px; height: 14px; }
+
+    .timeline-phases-wrap { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+    .timeline-phase { margin-bottom: 0; }
+
+    .systems-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .media-engine-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .rev-tiers { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; margin-bottom: 24px; }
+    .zone-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .decision-filter { flex-direction: row; }
+
+    .vision-stages-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .vision-stage-num { font-size: 70px; }
+    .vision-stage-name { font-size: 28px; }
+
+    .loop-bar { flex-wrap: nowrap; padding: 28px 32px; }
+    .loop-arrow { margin: 0 10px; font-size: 13px; }
+    .loop-step { font-size: 10px; }
+
+    .sub-label { font-size: 10px; margin-top: 32px; margin-bottom: 14px; }
+    .one-liner { padding: 40px; margin-top: 32px; }
+    .grid-auto { margin-bottom: 24px; }
+    .priorities-list { margin-bottom: 24px; }
+    .modes-grid { margin-bottom: 24px; }
+  }
+
+  /* ── SMALL PHONE TWEAKS (≤ 375px) ── */
+  @media (max-width: 375px) {
+    .hero-title { font-size: 42px; }
+    .committee-name { font-size: 10px; }
+    .bnav-btn { font-size: 6.5px; }
+    .bnav-btn .bnav-icon { font-size: 14px; }
+    .sections { padding: 0 12px 110px; }
+    .hero { padding: 22px 12px 20px; }
+    .site-header { padding: 0 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div id="lock-screen">
+  <div class="lock-bg"></div>
+  <div class="lock-content">
+    <div style="text-align:center">
+      <div class="lock-logo">HOUSE BL<span>3</span>ND</div>
+      <div class="lock-label" style="margin-top:6px">Internal Master SOP</div>
+    </div>
+    <div class="lock-divider"></div>
+    <div style="width:100%;text-align:center">
+      <div class="lock-label" style="margin-bottom:14px">Enter Access Code</div>
+      <input type="password" class="lock-input" id="pw-input" placeholder="••••" maxlength="16" autocomplete="off" inputmode="text" />
+    </div>
+    <button class="lock-btn" onclick="unlock()">UNLOCK</button>
+    <div class="lock-error" id="lock-error">INCORRECT CODE — TRY AGAIN</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <header class="site-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="header-logo">HOUSE BL<span>3</span>ND</div>
+      <div class="header-tag">MASTER SOP — INTERNAL</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="https://forms.gle/QwETPahSfwVW4PMBA" target="_blank" class="mobile-feedback">✦ FEEDBACK</a>
+      <nav class="top-nav">
+        <button class="nav-pill active" onclick="showSection('overview',this)">Overview</button>
+        <button class="nav-pill" onclick="showSection('team',this)">Team</button>
+        <button class="nav-pill" onclick="showSection('timeline',this)">Timeline</button>
+        <button class="nav-pill" onclick="showSection('systems',this)">Systems</button>
+        <button class="nav-pill" onclick="showSection('revenue',this)">Revenue</button>
+        <button class="nav-pill" onclick="showSection('vision',this)">Vision</button>
+        <a href="https://forms.gle/QwETPahSfwVW4PMBA" target="_blank" class="nav-pill feedback-pill">✦ FEEDBACK</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">// CONFIDENTIAL — INTERNAL USE ONLY</div>
+    <h1 class="hero-title">MASTER<br><em>STANDARD</em><br>OPERATING<br>PROCEDURE</h1>
+    <p class="hero-desc">Complete operational framework for HOUSE BL3ND — team structure, event timelines, core systems, revenue strategy, and long-term vision.</p>
+    <div class="hero-code">OPERATING CODE: <strong>Build immersive worlds. Systemize everything. Scale globally.</strong></div>
+  </div>
+
+  <div class="sections">
+
+    <!-- ① OVERVIEW -->
+    <div class="section active" id="section-overview">
+
+      <div class="phase-cards fade-in">
+        <div class="card">
+          <div class="card-label">Phase</div>
+          <div class="card-title" style="color:var(--orange)">PAST</div>
+          <div class="card-body">
+            <strong style="color:#ccc;display:block;margin-bottom:6px">KEEP</strong>
+            High-energy environments · Music curation · Multicultural crowd · Community growth
+            <br><br>
+            <strong style="color:#ccc;display:block;margin-bottom:6px">CUT</strong>
+            Disorganized ops · Setup inefficiency · Undefined roles · Under-monetized
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Phase</div>
+          <div class="card-title" style="color:var(--yellow)">PRESENT</div>
+          <div class="card-body">
+            Multi-team structure · Pre/During/Post event flow · Growing production + brand integration
+            <br><br>
+            <strong style="color:#ccc;display:block;margin-bottom:6px">FOCUS</strong>
+            Clean ops · Defined ownership · Elevated production · Sponsor integration
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Phase</div>
+          <div class="card-title" style="color:var(--green)">FUTURE</div>
+          <div class="card-body">
+            Flagship multi-stage festival · Multi-city circuit · Media engine · Global cultural brand
+            <br><br>
+            <strong style="color:#ccc;display:block;margin-bottom:6px">TARGET</strong>
+            Thousands of attendees · Immersive stages · Scalable IP
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-label">// COMMAND MODES</div>
+      <div class="modes-grid fade-in">
+        <div class="mode-card"><div class="mode-icon">🔮</div><div class="mode-name">VISION</div><div class="mode-desc">Bold ideas · Scale thinking</div></div>
+        <div class="mode-card"><div class="mode-icon">⚙️</div><div class="mode-name">EXEC</div><div class="mode-desc">Step-by-step · Precise</div></div>
+        <div class="mode-card"><div class="mode-icon">💰</div><div class="mode-name">REVENUE</div><div class="mode-desc">Monetize · Scale</div></div>
+        <div class="mode-card"><div class="mode-icon">📋</div><div class="mode-name">OPS</div><div class="mode-desc">Logistics · Systems</div></div>
+        <div class="mode-card"><div class="mode-icon">🎨</div><div class="mode-name">BRAND</div><div class="mode-desc">Identity · Story</div></div>
+      </div>
+
+      <div class="sub-label">// CURRENT PRIORITIES</div>
+      <div class="priorities-list fade-in">
+        <div class="priority-item"><div class="priority-tag">GROWTH</div><div class="priority-text">Build email list · Grow TikTok · Expand social reach</div></div>
+        <div class="priority-item"><div class="priority-tag">BUSINESS</div><div class="priority-text">Form LLC · Secure trademark · Establish legal infrastructure</div></div>
+        <div class="priority-item"><div class="priority-tag">PIPELINE</div><div class="priority-text">Lock Kim Nhung · Lock Lumen · Consistent scheduling</div></div>
+        <div class="priority-item"><div class="priority-tag">COMMUNITY</div><div class="priority-text">Consistent events · Community growth · Loyal audience</div></div>
+      </div>
+
+      <div class="one-liner fade-in"><div class="one-liner-text"><em>AUTHENTICITY WINS.</em> SYSTEMS SCALE.</div></div>
+    </div>
+
+    <!-- ② TEAM -->
+    <div class="section" id="section-team">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <div><div class="section-eyebrow">// COMMITTEE STRUCTURE</div><div class="section-title">TEAM &amp; ROLES</div></div>
+      </div>
+
+      <div class="fade-in">
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#ef4444"></div>
+            <div class="committee-name">🟥 MEDIA</div>
+            <div class="committee-members">Garry · Kyle · Anthony · Jimmy</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Plan photo/video coverage</li><li>Prep equipment and shot list</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">DURING EVENT</div><ul class="detail-tasks"><li>Capture DJs, crowd, decor/venue</li><li>Check in w/ audio for recording</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Edit photos/video</li><li>Upload shared gallery</li><li>Deliver recap content</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#f97316"></div>
+            <div class="committee-name">🟧 SPONSORS</div>
+            <div class="committee-members">Pattalina · AJ · Johnny · Ian</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Secure sponsors</li><li>Confirm vendor participation</li><li>Coordinate brand activations</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">DURING EVENT</div><ul class="detail-tasks"><li>Support vendors · Manage brand activations</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Thank partners · Maintain relationships</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#eab308"></div>
+            <div class="committee-name">🟨 SETUP / DECOR</div>
+            <div class="committee-members">Antonio · Rony · Jeron · Destin · Tyler · Ian</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Plan decor layout</li><li>Confirm equipment/budget</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">EVENT DAY</div><ul class="detail-tasks"><li>Install decor · Prepare venue layout</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Remove decor · Pack equipment</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#3b82f6"></div>
+            <div class="committee-name">🟦 SOUND</div>
+            <div class="committee-members">Rony · Destin · Antonio · Edwin · Julian</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Confirm sound system / Decks</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">EVENT DAY</div><ul class="detail-tasks"><li>Setup system · Sound check · Monitor audio · Record</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Pack equipment · Share recording with visual team</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#22c55e"></div>
+            <div class="committee-name">🟩 FOOD / BEV</div>
+            <div class="committee-members">David · Anthony · Pattalina</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Confirm bar/vendors · Ingredients</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">EVENT DAY</div><ul class="detail-tasks"><li>Monitor drink service · Support vendors</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#a855f7"></div>
+            <div class="committee-name">🟪 SOCIAL</div>
+            <div class="committee-members">Pattalina · Jimmy · Johnny · Bella · Anthony</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Event announcement · IG/TikTok promo · Email blast</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">DURING EVENT</div><ul class="detail-tasks"><li>Stories / live clips</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Recap posts · Promote next event</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#6b7280"></div>
+            <div class="committee-name">⬛ OPS / FINANCE</div>
+            <div class="committee-members">Pattalina · Jimmy · Johnny</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Budget planning · Vendor payments</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">DURING EVENT</div><ul class="detail-tasks"><li>Monitor revenue</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Finalize finances · Team debrief</li></ul></div>
+          </div>
+        </div>
+
+        <div class="committee-item">
+          <div class="committee-row" onclick="toggleCommittee(this)">
+            <div class="committee-dot" style="background:#92400e"></div>
+            <div class="committee-name">🟫 MERCH</div>
+            <div class="committee-members">Anthony · Keisuke</div>
+            <div class="committee-toggle">+</div>
+          </div>
+          <div class="committee-detail">
+            <div class="detail-phase"><div class="detail-phase-label">PRE-EVENT</div><ul class="detail-tasks"><li>Design merch · Prepare inventory</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">EVENT DAY</div><ul class="detail-tasks"><li>Setup table · Manage sales</li></ul></div>
+            <div class="detail-phase"><div class="detail-phase-label">POST EVENT</div><ul class="detail-tasks"><li>Track inventory</li></ul></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px" class="fade-in">
+        <div class="contrib-box">
+          <div class="contrib-label">CONTRIBUTORS / VOLUNTEERS</div>
+          <div class="contrib-names">Alex Ge · Tien · Thun · Ellie · Bella · Kelsee · AJ (Vintage)</div>
+          <div style="margin-top:10px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px">SUPPORT: Setup · Door · Merch · Media</div>
+        </div>
+        <div class="contrib-box" style="margin-top:2px">
+          <div class="contrib-label">RESIDENT ARTISTS</div>
+          <div class="contrib-names">Selyna · Carolyn · Julian · Destin · SOLO</div>
+          <div style="margin-top:10px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px">Direction · Venue relationships · Budget · Partnerships</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ TIMELINE -->
+    <div class="section" id="section-timeline">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <div><div class="section-eyebrow">// EVENT PHASES</div><div class="section-title">EVENT TIMELINE</div></div>
+      </div>
+
+      <div class="timeline-phases-wrap fade-in">
+        <div class="timeline-phase">
+          <div class="phase-roman">I</div>
+          <div class="phase-name">PRE-EVENT — 3–4 WEEKS OUT</div>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Lock venue &amp; date</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Confirm DJs / lineup</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Confirm vendors / bar</span><div class="tag" style="background:#1a0d00;color:#f97316">🟧</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Secure sponsors</span><div class="tag" style="background:#1a0d00;color:#f97316">🟧</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Plan decor &amp; layout</span><div class="tag" style="background:#1a1500;color:#eab308">🟨</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Create event flyer</span><div class="tag" style="background:#1a0030;color:#a855f7">🟪</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Launch social announcement</span><div class="tag" style="background:#1a0030;color:#a855f7">🟪</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Begin IG/TikTok rollout</span><div class="tag" style="background:#1a0030;color:#a855f7">🟪</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Confirm team availability</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+          </ul>
+        </div>
+
+        <div class="timeline-phase">
+          <div class="phase-roman">II</div>
+          <div class="phase-name">WEEK OF EVENT</div>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Final venue walkthrough</span><div class="tag" style="background:#1a1500;color:#eab308">🟨</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Confirm DJ set times</span><div class="tag" style="background:#001233;color:#3b82f6">🟦</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Confirm vendor logistics</span><div class="tag" style="background:#1a0d00;color:#f97316">🟧</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Prepare merch inventory</span><div class="tag" style="background:#1a0800;color:#92400e">🟫</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Prepare media coverage</span><div class="tag" style="background:#1a0000;color:#ef4444">🟥</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Push final social promo</span><div class="tag" style="background:#1a0030;color:#a855f7">🟪</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Team coordination</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+          </ul>
+        </div>
+
+        <div class="timeline-phase">
+          <div class="phase-roman">III</div>
+          <div class="phase-name">EVENT DAY</div>
+          <div class="phase-sub">SETUP</div>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Sound system installed</span><div class="tag" style="background:#001233;color:#3b82f6">🟦</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>DJ booth ready</span><div class="tag" style="background:#001233;color:#3b82f6">🟦</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Decor installed</span><div class="tag" style="background:#1a1500;color:#eab308">🟨</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Lighting tested</span><div class="tag" style="background:#1a1500;color:#eab308">🟨</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Merch table setup</span><div class="tag" style="background:#1a0800;color:#92400e">🟫</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Vendor setup complete</span><div class="tag" style="background:#1a0d00;color:#f97316">🟧</div></li>
+          </ul>
+          <div class="phase-sub">BEFORE DOORS</div>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Sound check</span><div class="tag" style="background:#001233;color:#3b82f6">🟦</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Team briefing</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Media ready</span><div class="tag" style="background:#1a0000;color:#ef4444">🟥</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Door / guest list ready</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+          </ul>
+          <div class="phase-sub">DURING</div>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Monitor sound</span><div class="tag" style="background:#001233;color:#3b82f6">🟦</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Capture photos/video</span><div class="tag" style="background:#1a0000;color:#ef4444">🟥</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Post stories / live clips</span><div class="tag" style="background:#1a0030;color:#a855f7">🟪</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Manage merch sales</span><div class="tag" style="background:#1a0800;color:#92400e">🟫</div></li>
+            <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Monitor crowd flow</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="timeline-phase fade-in" style="margin-top:2px">
+        <div class="phase-roman">IV</div>
+        <div class="phase-name">POST EVENT</div>
+        <ul class="checklist post-event-grid">
+          <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Upload shared gallery</span><div class="tag" style="background:#1a0000;color:#ef4444">🟥</div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Post recap photos/videos</span><div class="tag" style="background:#1a0000;color:#ef4444">🟥</div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Thank DJs / partners</span><div class="tag" style="background:#1a0d00;color:#f97316">🟧</div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Team debrief</span><div class="tag" style="background:#1a1a1a;color:#888">⬛</div></li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div><span>Begin promoting next event</span><div class="tag" style="background:#1a0030;color:#a855f7">🟪</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ④ SYSTEMS -->
+    <div class="section" id="section-systems">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <div><div class="section-eyebrow">// CORE FRAMEWORK</div><div class="section-title">OPERATING SYSTEMS</div></div>
+      </div>
+
+      <div class="systems-wrap fade-in">
+        <div class="system-card"><div class="system-icon">01</div><div class="system-name">EXPERIENCE DESIGN</div><div class="system-focus">HOW IT FEELS</div><ul class="system-items"><li>Crowd flow and movement optimization</li><li>Energy progression across time</li><li>Stage programming + transitions</li><li>Sensory environments (lighting, sound, visuals)</li><li>Immersion and memorability as north star</li></ul></div>
+        <div class="system-card"><div class="system-icon">02</div><div class="system-name">REVENUE ENGINE</div><div class="system-focus">HOW IT PAYS</div><ul class="system-items"><li>Sponsorships (primary)</li><li>Vendor fees (primary)</li><li>Bar &amp; beverage partnerships</li><li>Ticketing (optional or tiered)</li><li>Merchandising</li><li>Content monetization</li></ul></div>
+        <div class="system-card"><div class="system-icon">03</div><div class="system-name">OPERATIONS</div><div class="system-focus">HOW IT RUNS</div><ul class="system-items"><li>Team structure and delegation</li><li>Logistics planning</li><li>Load-in / load-out systems</li><li>Vendor coordination</li><li>Risk mitigation and contingencies</li></ul></div>
+        <div class="system-card"><div class="system-icon">04</div><div class="system-name">BRAND &amp; CULTURE</div><div class="system-focus">HOW IT'S PERCEIVED</div><ul class="system-items"><li>Premium but inclusive tone</li><li>Community-first messaging</li><li>Multicultural authenticity</li><li>Visually distinctive identity</li><li>Consistency across all touchpoints</li></ul></div>
+        <div class="system-card" style="grid-column:1/-1">
+          <div class="system-icon">05</div>
+          <div class="system-name">MEDIA ENGINE</div>
+          <div class="system-focus">HOW IT SPREADS</div>
+          <div class="media-engine-grid">
+            <div class="media-engine-item"><div class="me-label">CAPTURE</div><div class="me-desc">Content strategy from every event</div></div>
+            <div class="media-engine-item"><div class="me-label">VIRAL</div><div class="me-desc">Intentional viral moment creation</div></div>
+            <div class="media-engine-item"><div class="me-label">DISTRIBUTION</div><div class="me-desc">Short + long-form always-on</div></div>
+            <div class="media-engine-item"><div class="me-label">FLYWHEEL</div><div class="me-desc">Every event feeds the engine</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-label" style="margin-top:24px">// THINKING FRAMEWORK</div>
+      <div class="grid-auto fade-in">
+        <div class="card"><div class="card-label">Framework 01</div><div class="card-title">SYSTEMS THINKING</div><div class="card-body">How does this connect to the full ecosystem?</div></div>
+        <div class="card"><div class="card-label">Framework 02</div><div class="card-title">LEVERAGE THINKING</div><div class="card-body">Maximum output with minimal input.</div></div>
+        <div class="card"><div class="card-label">Framework 03</div><div class="card-title">EXPERIENCE FIRST</div><div class="card-body">Does this improve the attendee experience?</div></div>
+        <div class="card"><div class="card-label">Framework 04</div><div class="card-title">MONETIZATION LAYERING</div><div class="card-body">Can this generate or increase revenue?</div></div>
+        <div class="card"><div class="card-label">Framework 05</div><div class="card-title">SCALABILITY</div><div class="card-body">Can this expand across cities or formats?</div></div>
+        <div class="card" style="background:#0d0d0d;border-color:var(--accent)"><div class="card-label" style="color:var(--accent)">Continuous Improvement</div><div class="card-title">THE LOOP</div><div class="card-body"><strong style="color:#ccc">1.</strong> Analyze · <strong style="color:#ccc">2.</strong> Identify gaps · <strong style="color:#ccc">3.</strong> Propose upgrades · <strong style="color:#ccc">4.</strong> Systemize · <strong style="color:#ccc">5.</strong> Scale</div></div>
+      </div>
+    </div>
+
+    <!-- ⑤ REVENUE -->
+    <div class="section" id="section-revenue">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <div><div class="section-eyebrow">// MONETIZATION STACK</div><div class="section-title">REVENUE STRATEGY</div></div>
+      </div>
+
+      <div class="rev-tiers fade-in">
+        <div class="rev-tier"><div class="rev-tier-label">TIER 01 — PRIMARY</div><div class="rev-tier-name" style="color:var(--accent)">CORE</div><ul class="rev-items"><li>Sponsorships</li><li>Vendor fees</li><li>Bar partnerships</li></ul></div>
+        <div class="rev-tier"><div class="rev-tier-label">TIER 02 — SECONDARY</div><div class="rev-tier-name" style="color:var(--yellow)">GROWTH</div><ul class="rev-items"><li>VIP / memberships</li><li>Merch</li><li>Paid experiences</li></ul></div>
+        <div class="rev-tier"><div class="rev-tier-label">TIER 03 — ADVANCED</div><div class="rev-tier-name" style="color:var(--green)">SCALE</div><ul class="rev-items"><li>Content licensing</li><li>Brand data capture</li><li>Tourism partnerships</li></ul></div>
+      </div>
+
+      <div class="sub-label">// MULTI-STAGE REVENUE ZONES</div>
+      <div class="zone-grid fade-in">
+        <div class="zone-card"><div class="zone-name">MAIN STAGE</div><div class="zone-desc">Mass energy · Headline talent</div></div>
+        <div class="zone-card"><div class="zone-name">FOOD VILLAGE</div><div class="zone-desc">Dwell time + spend · Vendor revenue</div></div>
+        <div class="zone-card"><div class="zone-name">BRAND DISTRICT</div><div class="zone-desc">Revenue core · Sponsor activations</div></div>
+        <div class="zone-card"><div class="zone-name">VIP CLUB</div><div class="zone-desc">Premium tiers · Exclusive access</div></div>
+        <div class="zone-card"><div class="zone-name">GLOBAL STAGE</div><div class="zone-desc">Cultural depth · Intl talent</div></div>
+        <div class="zone-card"><div class="zone-name">IMMERSIVE ZONE</div><div class="zone-desc">Shareable moments · Brand story</div></div>
+        <div class="zone-card"><div class="zone-name">MERCH ZONE</div><div class="zone-desc">Brand loyalty · Product revenue</div></div>
+        <div class="zone-card"><div class="zone-name">MEDIA HUB</div><div class="zone-desc">Content engine · Livestream</div></div>
+      </div>
+
+      <div class="sub-label">// DECISION FILTER — USE ON EVERY IDEA</div>
+      <div class="decision-filter fade-in">
+        <div class="filter-q"><div class="filter-num">01</div><div class="filter-q-text">Does this <strong>elevate the experience</strong> for attendees?</div></div>
+        <div class="filter-q"><div class="filter-num">02</div><div class="filter-q-text">Does this <strong>generate revenue</strong> or increase monetization?</div></div>
+        <div class="filter-q"><div class="filter-num">03</div><div class="filter-q-text">Does this <strong>scale across cities</strong> or repeat formats?</div></div>
+      </div>
+      <div class="filter-note">IF NOT → CUT OR REFINE. DO NOT PROCEED.</div>
+    </div>
+
+    <!-- ⑥ VISION -->
+    <div class="section" id="section-vision">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <div><div class="section-eyebrow">// LONG-TERM SCALE</div><div class="section-title">VISION &amp; FUTURE</div></div>
+      </div>
+
+      <div class="vision-stages-wrap fade-in">
+        <div class="vision-stage"><div class="vision-stage-num">01</div><div class="vision-stage-name" style="color:var(--accent)">FLAGSHIP FESTIVAL</div><div class="vision-stage-desc">Multi-stage (music, culture, food, art) · Thousands of attendees · International talent · Immersive branded environments</div></div>
+        <div class="vision-stage"><div class="vision-stage-num">02</div><div class="vision-stage-name" style="color:var(--yellow)">MULTI-CITY PLATFORM</div><div class="vision-stage-desc">Recurring events across cities · Vendor + brand marketplace · Ticketing + membership ecosystem</div></div>
+        <div class="vision-stage"><div class="vision-stage-num">03</div><div class="vision-stage-name" style="color:var(--green)">MEDIA ENGINE</div><div class="vision-stage-desc">Always-on content · DJ sets · Recaps · Micro-content · Documentary-style storytelling</div></div>
+        <div class="vision-stage"><div class="vision-stage-num">04</div><div class="vision-stage-name" style="color:var(--blue)">BRAND ACTIVATION HUB</div><div class="vision-stage-desc">Brands integrate into stages, installations, experiences · White-labeled execution</div></div>
+        <div class="vision-stage" style="grid-column:1/-1"><div class="vision-stage-num" style="font-size:80px">05</div><div class="vision-stage-name" style="color:var(--purple);font-size:clamp(24px,6vw,40px)">GLOBAL CULTURAL BRAND</div><div class="vision-stage-desc">Recognizable identity · Loyal community · Scalable IP · City strategy built on culture + brands + travel pull</div></div>
+      </div>
+
+      <div class="sub-label">// EXPERIENCE LOOP</div>
+      <div class="loop-bar fade-in">
+        <div class="loop-step hl">ATTRACT</div><div class="loop-arrow">→</div>
+        <div class="loop-step">IMMERSE</div><div class="loop-arrow">→</div>
+        <div class="loop-step hl">PEAK</div><div class="loop-arrow">→</div>
+        <div class="loop-step">RESET</div><div class="loop-arrow">→</div>
+        <div class="loop-step hl">RE-ENGAGE</div><div class="loop-arrow">→</div>
+        <div class="loop-step">CAPTURE</div><div class="loop-arrow">→</div>
+        <div class="loop-step hl">SHARE</div><div class="loop-arrow">→</div>
+        <div class="loop-step">RETURN</div><div class="loop-arrow">↩</div>
+        <div class="loop-step hl">ATTRACT</div>
+      </div>
+
+      <div class="one-liner fade-in">
+        <div class="one-liner-text">BUILD IMMERSIVE WORLDS.<br>SYSTEMIZE EVERYTHING. SCALE GLOBALLY.</div>
+      </div>
+    </div>
+
+  </div><!-- /sections -->
+
+  <!-- BOTTOM NAV (mobile) -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" onclick="showSection('overview',this)" data-section="overview">
+      <div class="bnav-icon">◎</div>
+      <div class="bnav-label">Overview</div>
+    </button>
+    <button class="bnav-btn" onclick="showSection('team',this)" data-section="team">
+      <div class="bnav-icon">👥</div>
+      <div class="bnav-label">Team</div>
+    </button>
+    <button class="bnav-btn" onclick="showSection('timeline',this)" data-section="timeline">
+      <div class="bnav-icon">✓</div>
+      <div class="bnav-label">Timeline</div>
+    </button>
+    <button class="bnav-btn" onclick="showSection('systems',this)" data-section="systems">
+      <div class="bnav-icon">⚙</div>
+      <div class="bnav-label">Systems</div>
+    </button>
+    <button class="bnav-btn" onclick="showSection('revenue',this)" data-section="revenue">
+      <div class="bnav-icon">💰</div>
+      <div class="bnav-label">Revenue</div>
+    </button>
+    <button class="bnav-btn" onclick="showSection('vision',this)" data-section="vision">
+      <div class="bnav-icon">🔮</div>
+      <div class="bnav-label">Vision</div>
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<script>
+  const PW = 't3am';
+
+  function unlock() {
+    const val = document.getElementById('pw-input').value;
+    const errEl = document.getElementById('lock-error');
+    const inp = document.getElementById('pw-input');
+    if (val === PW) {
+      const ls = document.getElementById('lock-screen');
+      ls.style.transition = 'opacity 0.4s';
+      ls.style.opacity = '0';
+      setTimeout(() => {
+        ls.style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+      }, 400);
+    } else {
+      inp.classList.add('error');
+      errEl.classList.add('show');
+      setTimeout(() => { inp.classList.remove('error'); }, 400);
+      inp.value = '';
+    }
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') unlock();
+  });
+
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('active');
+
+    // Update bottom nav
+    document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+    // Update top nav
+    document.querySelectorAll('.nav-pill').forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
+
+    // Sync the other nav
+    const section = id;
+    document.querySelectorAll('.bnav-btn[data-section="' + section + '"]').forEach(b => b.classList.add('active'));
+    document.querySelectorAll('.nav-pill[data-section="' + section + '"]').forEach(b => b.classList.add('active'));
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Add data-section to top nav pills on load
+  document.querySelectorAll('.nav-pill').forEach(btn => {
+    const onclick = btn.getAttribute('onclick');
+    const match = onclick && onclick.match(/'(\w+)'/);
+    if (match) btn.setAttribute('data-section', match[1]);
+  });
+
+  function toggleCommittee(row) {
+    const detail = row.nextElementSibling;
+    row.classList.toggle('open');
+    detail.classList.toggle('open');
+  }
+
+  function toggleCheck(li) {
+    li.classList.toggle('checked');
+    const box = li.querySelector('.check-box');
+    box.textContent = li.classList.contains('checked') ? '✓' : '';
+  }
+</script>
+</body>
+</html>
